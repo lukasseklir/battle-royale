@@ -42,8 +42,27 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
     // Property for nightVisionSwitch (changed from local variable).
     var nightVisionSwitch: UISwitch!
     
+    var hitmarkerPlayer: AVAudioPlayer?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // Set up audio session for playback.
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            print("Audio session setup error: \(error)")
+        }
+        
+        if let hitmarkerUrl = Bundle.main.url(forResource: "hitmarker", withExtension: "mp3") {
+            do {
+                hitmarkerPlayer = try AVAudioPlayer(contentsOf: hitmarkerUrl)
+                hitmarkerPlayer?.prepareToPlay()
+            } catch {
+                print("Error loading hitmarker sound: \(error)")
+            }
+        }
         
         setupCamera()
         
@@ -275,6 +294,7 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
                 let hitHaptic = UINotificationFeedbackGenerator()
                 hitHaptic.notificationOccurred(.success)
                 animateHitFeedback()
+                hitmarkerPlayer?.play()
             }
             
             if bulletCount == 0 {
