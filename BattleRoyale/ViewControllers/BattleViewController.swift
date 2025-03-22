@@ -60,7 +60,7 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
         // Set a random gun on first launch.
         if let randomGun = GunService.shared.guns.randomElement() {
             selectedGun = randomGun
-            gunSelectorLabel.text = randomGun.name
+            gunSelectorLabel.text = "\(randomGun.name), \(randomGun.isSemiAuto ? "Semi-Auto" : "Full-Auto")"
             bulletCount = randomGun.magazineSize  // Initialize bullet count based on gun's magazine size.
             updateBulletCountLabel("\(bulletCount)")
         }
@@ -269,6 +269,8 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
             let shootHaptic = UIImpactFeedbackGenerator(style: .medium)
             shootHaptic.impactOccurred()
             
+            createBulletTracer()
+            
             if isPersonInCrosshair() {
                 let hitHaptic = UINotificationFeedbackGenerator()
                 hitHaptic.notificationOccurred(.success)
@@ -359,13 +361,49 @@ extension BattleViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
             }
         }
     }
+    
+    func createBulletTracer() {
+        // Define start and end points
+        let startPoint = CGPoint(x: view.bounds.width - 30, y: view.bounds.height - 30)
+        let endPoint = crosshairView.center
+
+        // Create a path from start to end
+        let tracerPath = UIBezierPath()
+        tracerPath.move(to: startPoint)
+        tracerPath.addLine(to: endPoint)
+        
+        // Configure a CAShapeLayer to display the path
+        let tracerLayer = CAShapeLayer()
+        tracerLayer.path = tracerPath.cgPath
+        tracerLayer.strokeColor = UIColor.yellow.cgColor
+        tracerLayer.lineWidth = 2.0
+        tracerLayer.lineCap = .round
+        tracerLayer.strokeEnd = 0  // Start with no visible stroke
+        
+        // Add the tracer layer to the view's layer hierarchy
+        view.layer.addSublayer(tracerLayer)
+        
+        // Animate strokeEnd from 0 to 1 to simulate the tracer moving along the line
+        let animationDuration: CFTimeInterval = 0.15
+        let strokeAnimation = CABasicAnimation(keyPath: "strokeEnd")
+        strokeAnimation.fromValue = 0
+        strokeAnimation.toValue = 1
+        strokeAnimation.duration = animationDuration
+        strokeAnimation.timingFunction = CAMediaTimingFunction(name: .easeOut)
+        tracerLayer.add(strokeAnimation, forKey: "strokeEndAnimation")
+        
+        // Remove the layer after the animation completes
+        DispatchQueue.main.asyncAfter(deadline: .now() + animationDuration) {
+            tracerLayer.removeFromSuperlayer()
+        }
+    }
 }
 
 extension BattleViewController: GunSelectorDelegate {
     // When a new gun is selected, start in reloading mode and update the bullet count based on the gun.
     func didSelectGun(_ gun: Gun) {
         selectedGun = gun
-        gunSelectorLabel.text = gun.name
+        gunSelectorLabel.text = "\(gun.name), \(gun.isSemiAuto ? "Semi-Auto" : "Full-Auto")"
         
         isReloading = true
         updateBulletCountLabel("Reloading...")
