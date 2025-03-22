@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Network  // Imported to use NWBrowser for triggering the prompt
 
 class InitialViewController: UIViewController {
 
@@ -13,17 +14,32 @@ class InitialViewController: UIViewController {
     let getStartedButton = StandardButton(title: "Get Started", tintColor: .systemIndigo, backgroundColor: .white)
     
     var udp: UDPCommunication?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        //test
+        // Trigger the local network permission prompt early
+        triggerLocalNetworkPrompt()
+        
+        // Initialize and use UDPCommunication
         udp = UDPCommunication(receivePort: 9999)
-        udp?.configurePeer(ip: "192.168.1.15", port: 8888)
+        udp?.configurePeer(ip: "206.87.217.87", port: 8888)
         udp?.send(message: "💥 Bullet fired from device!")
         
-         
+        print(udp?.localIPAddress ?? "No IP found")
         
         setupUI()
+    }
+    
+    /// Uses NWBrowser to trigger the local network permission prompt.
+    /// This browser does not need to find any services.
+    func triggerLocalNetworkPrompt() {
+        // Create a dummy Bonjour browser to prompt for local network access.
+        let browser = NWBrowser(for: .bonjour(type: "_localservice._udp", domain: nil), using: .udp)
+        browser.stateUpdateHandler = { state in
+            print("NWBrowser state: \(state)")
+        }
+        browser.start(queue: .main)
     }
     
     func setupUI() {
@@ -32,10 +48,10 @@ class InitialViewController: UIViewController {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(stackView)
         NSLayoutConstraint.activate([
-            stackView.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 0),
+            stackView.topAnchor.constraint(equalTo: self.view.topAnchor),
             stackView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 32),
             stackView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -32),
-            stackView.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor, constant: 0)
+            stackView.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor)
         ])
         
         let topView = UIView()
@@ -51,11 +67,12 @@ class InitialViewController: UIViewController {
         stackView.addArrangedSubview(topView)
         
         let getStartedTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(getStartedButtonTapped(_:)))
+        // Adjust gesture recognizer settings for smooth interaction
         getStartedTapGestureRecognizer.cancelsTouchesInView = false
         getStartedTapGestureRecognizer.delaysTouchesBegan = false
         getStartedTapGestureRecognizer.delaysTouchesEnded = true
         getStartedButton.addGestureRecognizer(getStartedTapGestureRecognizer)
-
+        
         stackView.addArrangedSubview(getStartedButton)
     }
     
