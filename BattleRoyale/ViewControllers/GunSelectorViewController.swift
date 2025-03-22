@@ -35,7 +35,7 @@ class GunSelectorViewController: UIViewController {
             gunsTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -10)
         ])
         
-        let gunsService = GunsService.shared
+        let gunsService = GunService.shared
         gunsTableView.guns = gunsService.guns
         gunsTableView.gunSelectionDelegate = self
         

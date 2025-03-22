@@ -18,7 +18,7 @@
 		80417BD62D8F5AD60086B127 /* Guns.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80417BD52D8F5AD60086B127 /* Guns.swift */; };
 		80417BDA2D8F5B1C0086B127 /* GunsTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80417BD92D8F5B1C0086B127 /* GunsTableView.swift */; };
 		80417BDC2D8F5B2D0086B127 /* GunTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80417BDB2D8F5B2D0086B127 /* GunTableViewCell.swift */; };
-		80417BDE2D8F5BB40086B127 /* GunsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80417BDD2D8F5BB40086B127 /* GunsService.swift */; };
+		80417BDE2D8F5BB40086B127 /* GunService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80417BDD2D8F5BB40086B127 /* GunService.swift */; };
 		8076502E2D8F45D10067437E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8076502D2D8F45D10067437E /* AppDelegate.swift */; };
 		807650302D8F45D10067437E /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8076502F2D8F45D10067437E /* SceneDelegate.swift */; };
 		807650372D8F45D20067437E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 807650362D8F45D20067437E /* Assets.xcassets */; };
@@ -57,7 +57,7 @@
 		80417BD52D8F5AD60086B127 /* Guns.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Guns.swift; sourceTree = "<group>"; };
 		80417BD92D8F5B1C0086B127 /* GunsTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GunsTableView.swift; sourceTree = "<group>"; };
 		80417BDB2D8F5B2D0086B127 /* GunTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GunTableViewCell.swift; sourceTree = "<group>"; };
-		80417BDD2D8F5BB40086B127 /* GunsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GunsService.swift; sourceTree = "<group>"; };
+		80417BDD2D8F5BB40086B127 /* GunService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GunService.swift; sourceTree = "<group>"; };
 		8076502A2D8F45D10067437E /* BattleRoyale.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BattleRoyale.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8076502D2D8F45D10067437E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		8076502F2D8F45D10067437E /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -157,7 +157,7 @@
 			isa = PBXGroup;
 			children = (
 				80417BCC2D8F49A40086B127 /* NavigationService.swift */,
-				80417BDD2D8F5BB40086B127 /* GunsService.swift */,
+				80417BDD2D8F5BB40086B127 /* GunService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -367,7 +367,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				80417BDE2D8F5BB40086B127 /* GunsService.swift in Sources */,
+				80417BDE2D8F5BB40086B127 /* GunService.swift in Sources */,
 				80417BCF2D8F49EA0086B127 /* BattleViewController.swift in Sources */,
 				80417BC52D8F48FC0086B127 /* StandardButton.swift in Sources */,
 				80417BCA2D8F492A0086B127 /* StackViewExtensions.swift in Sources */,

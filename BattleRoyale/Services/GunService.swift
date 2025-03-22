@@ -7,9 +7,9 @@
 
 import UIKit
 
-class GunsService {
+class GunService {
     
-    static let shared = GunsService()
+    static let shared = GunService()
     
     let guns = [
         Gun(

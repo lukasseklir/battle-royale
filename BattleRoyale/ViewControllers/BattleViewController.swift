@@ -26,12 +26,18 @@ class BattleViewController: UIViewController {
     var captureSession: AVCaptureSession!
     var previewLayer: AVCaptureVideoPreviewLayer!
     
-    var bulletCount: Int = 10
-    let initialBulletCount: Int = 10
+    // Bullet count is now based on the selected gun's magazine size.
+    var bulletCount: Int = 0
+    var initialBulletCount: Int {
+        return selectedGun?.magazineSize ?? 10
+    }
     var isReloading: Bool = false
     var crosshairView: UIView!
     
     var latestObservations: [VNDetectedObjectObservation] = []
+    
+    // Timer for full auto firing
+    var autoFireTimer: Timer?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -49,13 +55,17 @@ class BattleViewController: UIViewController {
         setupGunSelectorLabel()
         
         // Set a random gun on first launch
-        if let randomGun = GunsService.shared.guns.randomElement() {
+        if let randomGun = GunService.shared.guns.randomElement() {
             selectedGun = randomGun
             gunSelectorLabel.text = randomGun.name
+            bulletCount = randomGun.magazineSize  // Initialize bullet count based on gun's magazine size
+            updateBulletCountLabel("\(bulletCount)")
         }
         
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))
-        view.addGestureRecognizer(tapGesture)
+        // Replace tap gesture with a long press gesture to handle both semi and full auto fire
+        let fireGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleFireGesture(_:)))
+        fireGesture.minimumPressDuration = 0 // Fires immediately
+        view.addGestureRecognizer(fireGesture)
     }
     
     func setupCamera() {
@@ -154,7 +164,6 @@ class BattleViewController: UIViewController {
         gunSelectorContainerView.clipsToBounds = true
 
         gunSelectorContainerView.addSubview(gunSelectorLabel)
-        // Remove placeholder text; gun name will be set on viewDidLoad
         view.addSubview(gunSelectorContainerView)
 
         NSLayoutConstraint.activate([
@@ -208,8 +217,25 @@ class BattleViewController: UIViewController {
         nightVisionImageView.isHidden = !nightVisionEnabled
     }
     
-    @objc func handleTap() {
-        shoot()
+    // Gesture handler to differentiate between semi and full auto firing modes
+    @objc func handleFireGesture(_ gesture: UILongPressGestureRecognizer) {
+        guard let gun = selectedGun else { return }
+        if gun.isSemiAuto {
+            // Semi-auto: fire once when gesture begins
+            if gesture.state == .began {
+                shoot()
+            }
+        } else {
+            // Full-auto: start firing continuously while pressed
+            if gesture.state == .began {
+                autoFireTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
+                    self?.shoot()
+                }
+            } else if gesture.state == .ended || gesture.state == .cancelled {
+                autoFireTimer?.invalidate()
+                autoFireTimer = nil
+            }
+        }
     }
     
     func shoot() {
@@ -229,15 +255,17 @@ class BattleViewController: UIViewController {
         } else {
             isReloading = true
             updateBulletCountLabel("Reloading...")
-            DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
-                guard let self = self else { return }
-                self.bulletCount = self.initialBulletCount
-                self.isReloading = false
-                self.updateBulletCountLabel("\(self.bulletCount)")
+            if let reloadTime = selectedGun?.reloadTime {
+                DispatchQueue.main.asyncAfter(deadline: .now() + reloadTime) { [weak self] in
+                    guard let self = self else { return }
+                    self.bulletCount = self.initialBulletCount
+                    self.isReloading = false
+                    self.updateBulletCountLabel("\(self.bulletCount)")
+                }
             }
         }
     }
-
+    
     func animateHitFeedback() {
         for subview in crosshairView.subviews {
             let originalColor = subview.backgroundColor
@@ -312,9 +340,18 @@ extension BattleViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
 }
 
 extension BattleViewController: GunSelectorDelegate {
-    // Update the current gun when one is selected in GunSelectorViewController
+    // When a new gun is selected, start in reloading mode and update the bullet count based on the gun.
     func didSelectGun(_ gun: Gun) {
         selectedGun = gun
         gunSelectorLabel.text = gun.name
+        
+        isReloading = true
+        updateBulletCountLabel("Reloading...")
+        DispatchQueue.main.asyncAfter(deadline: .now() + gun.reloadTime) { [weak self] in
+            guard let self = self else { return }
+            self.bulletCount = gun.magazineSize
+            self.isReloading = false
+            self.updateBulletCountLabel("\(self.bulletCount)")
+        }
     }
 }
