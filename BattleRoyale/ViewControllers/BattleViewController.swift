@@ -53,6 +53,12 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
         udp = UDPCommunication(receivePort: 8888)
         udp?.configurePeer(ip: "206.87.217.87", port: 9999)
         
+        if let ip = udp?.localIPAddress {
+            print("📱 My IP address: \(ip)")
+        } else {
+            print("⚠️ No IP address found")
+        }
+        
         // Set up audio session for playback.
         do {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
