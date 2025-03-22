@@ -7,6 +7,7 @@
 
 import UIKit
 import AVFoundation
+import Vision
 
 class BattleViewController: UIViewController {
     var captureSession: AVCaptureSession!
@@ -17,6 +18,9 @@ class BattleViewController: UIViewController {
     var isReloading: Bool = false
     var bulletCountLabel: UILabel!
     var crosshairView: UIView!
+    
+    // Store the latest human detection observations
+    var latestObservations: [VNDetectedObjectObservation] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,7 +35,7 @@ class BattleViewController: UIViewController {
     func setupCamera() {
         captureSession = AVCaptureSession()
         captureSession.sessionPreset = .high
-        
+
         guard let camera = AVCaptureDevice.default(for: .video) else {
             print("No camera available")
             return
@@ -45,7 +49,13 @@ class BattleViewController: UIViewController {
             print("Error setting device input: \(error)")
             return
         }
-        
+
+        let videoOutput = AVCaptureVideoDataOutput()
+        videoOutput.setSampleBufferDelegate(self, queue: DispatchQueue(label: "videoQueue"))
+        if captureSession.canAddOutput(videoOutput) {
+            captureSession.addOutput(videoOutput)
+        }
+
         previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
         previewLayer.videoGravity = .resizeAspectFill
         previewLayer.frame = view.bounds
@@ -53,6 +63,7 @@ class BattleViewController: UIViewController {
             connection.videoOrientation = .landscapeRight
         }
         view.layer.insertSublayer(previewLayer, at: 0)
+
         captureSession.startRunning()
     }
     
@@ -107,7 +118,7 @@ class BattleViewController: UIViewController {
         bulletCountLabel.backgroundColor = UIColor.black.withAlphaComponent(0.5)
         bulletCountLabel.textAlignment = .center
         bulletCountLabel.font = UIFont.systemFont(ofSize: 16, weight: .bold)
-        updateBulletCountLabel()
+        updateBulletCountLabel("\(bulletCount)")
         view.addSubview(bulletCountLabel)
         NSLayoutConstraint.activate([
             bulletCountLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
@@ -117,8 +128,8 @@ class BattleViewController: UIViewController {
         ])
     }
     
-    func updateBulletCountLabel() {
-        bulletCountLabel.text = "\(bulletCount)"
+    func updateBulletCountLabel(_ text: String) {
+        bulletCountLabel.text = text
     }
     
     @objc func handleTap() {
@@ -129,18 +140,84 @@ class BattleViewController: UIViewController {
         if isReloading { return }
         if bulletCount > 0 {
             bulletCount -= 1
-            updateBulletCountLabel()
-            print("Shoot! Bullets left: \(bulletCount)")
+            updateBulletCountLabel("\(bulletCount)")
+            
+            let shootHaptic = UIImpactFeedbackGenerator(style: .medium)
+            shootHaptic.impactOccurred()
+            
+            if isPersonInCrosshair() {
+                let hitHaptic = UINotificationFeedbackGenerator()
+                hitHaptic.notificationOccurred(.success)
+                animateHitFeedback()
+            }
         } else {
             isReloading = true
-            print("Reloading...")
+            updateBulletCountLabel("Reloading...")
             DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
                 guard let self = self else { return }
                 self.bulletCount = self.initialBulletCount
-                self.updateBulletCountLabel()
                 self.isReloading = false
-                print("Reload complete.")
+                self.updateBulletCountLabel("\(self.bulletCount)")
             }
+        }
+    }
+
+    func animateHitFeedback() {
+        for subview in crosshairView.subviews {
+            let originalColor = subview.backgroundColor
+            UIView.animate(withDuration: 0.1, animations: {
+                subview.backgroundColor = UIColor.green
+            }) { _ in
+                UIView.animate(withDuration: 0.1) {
+                    subview.backgroundColor = originalColor
+                }
+            }
+        }
+    }
+
+}
+
+// MARK: - Helper Methods
+extension BattleViewController {
+    // Convert a Vision observation's bounding box to view coordinates.
+    func viewRect(for observation: VNDetectedObjectObservation) -> CGRect {
+        let normalizedRect = observation.boundingBox
+        let metadataRect = CGRect(
+            x: normalizedRect.origin.x,
+            y: 1 - normalizedRect.origin.y - normalizedRect.height,
+            width: normalizedRect.width,
+            height: normalizedRect.height
+        )
+        return previewLayer.layerRectConverted(fromMetadataOutputRect: metadataRect)
+    }
+    
+    // Check if any detected person intersects with the crosshair area.
+    func isPersonInCrosshair() -> Bool {
+        for observation in latestObservations {
+            let detectionRect = viewRect(for: observation)
+            if crosshairView.frame.intersects(detectionRect) {
+                return true
+            }
+        }
+        return false
+    }
+}
+
+extension BattleViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
+    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+        guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
+        let request = VNDetectHumanRectanglesRequest { [weak self] request, error in
+            guard let self = self, let observations = request.results as? [VNDetectedObjectObservation] else { return }
+            // Update the latest observations on the main thread
+            DispatchQueue.main.async {
+                self.latestObservations = observations
+            }
+        }
+        let handler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer, options: [:])
+        do {
+            try handler.perform([request])
+        } catch {
+            print("Vision request failed: \(error)")
         }
     }
 }
