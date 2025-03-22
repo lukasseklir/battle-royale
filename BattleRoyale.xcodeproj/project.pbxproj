@@ -554,7 +554,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 56PW2NS3XS;
+				DEVELOPMENT_TEAM = 9C9CYF9VQA;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BattleRoyale/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "This app uses the camera to display a live feed for the battle interface.";
@@ -587,7 +587,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 56PW2NS3XS;
+				DEVELOPMENT_TEAM = 9C9CYF9VQA;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BattleRoyale/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "This app uses the camera to display a live feed for the battle interface.";
