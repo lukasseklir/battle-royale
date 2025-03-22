@@ -18,20 +18,17 @@ class UDPCommunication: ObservableObject {
     @Published var lastReceivedMessage: String = ""
     @Published var connectionState: String = "Not Connected"
 
-    /// Initialize with the port you want this device to listen on
     init(receivePort: UInt16) {
         self.receivePort = NWEndpoint.Port(rawValue: receivePort)!
         startListener()
     }
 
-    /// Set the IP and port of the other device you want to send messages to
     func configurePeer(ip: String, port: UInt16) {
         peerHost = NWEndpoint.Host(ip)
         peerPort = NWEndpoint.Port(rawValue: port)!
 
         connection = NWConnection(host: peerHost!, port: peerPort!, using: .udp)
         
-        // Add state handling
         connection?.stateUpdateHandler = { [weak self] state in
             switch state {
             case .ready:
@@ -52,14 +49,12 @@ class UDPCommunication: ObservableObject {
         connection?.start(queue: .main)
     }
 
-    /// Send a message to the configured peer
     func send(message: String) {
         guard let connection = connection else {
             print("❗️Connection not configured")
             return
         }
         
-        // Only send if connection is ready
         if connection.state == .ready {
             let data = message.data(using: .utf8)!
             connection.send(content: data, completion: .contentProcessed({ error in
@@ -74,7 +69,6 @@ class UDPCommunication: ObservableObject {
         }
     }
 
-    /// Starts listening for UDP messages on the specified port
     private func startListener() {
         do {
             let parameters = NWParameters.udp
@@ -86,7 +80,6 @@ class UDPCommunication: ObservableObject {
                 self?.receive(on: newConnection)
             }
             
-            // Add state handling for listener
             listener?.stateUpdateHandler = { state in
                 switch state {
                 case .ready:
@@ -107,7 +100,6 @@ class UDPCommunication: ObservableObject {
         }
     }
 
-    /// Keep receiving data on the incoming connection
     private func receive(on connection: NWConnection) {
         connection.receiveMessage { [weak self] (data, _, _, error) in
             if let error = error {
@@ -123,7 +115,6 @@ class UDPCommunication: ObservableObject {
                 print("📥 Received data but couldn't decode as UTF-8")
             }
 
-            // Keep listening for more messages as long as connection is active
             if connection.state == .ready || connection.state == .preparing {
                 self?.receive(on: connection)
             } else {
@@ -132,7 +123,6 @@ class UDPCommunication: ObservableObject {
         }
     }
     
-    // Wait for connection to be ready then send message
     func sendWhenReady(message: String, timeout: TimeInterval = 5.0) {
         guard let connection = connection else {
             print("❗️Connection not configured")
@@ -162,7 +152,6 @@ class UDPCommunication: ObservableObject {
         checkAndSend()
     }
 
-    /// Returns the device's local IP address on Wi-Fi
     var localIPAddress: String? {
         var address: String?
         var ifaddr: UnsafeMutablePointer<ifaddrs>?

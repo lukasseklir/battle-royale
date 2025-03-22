@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import Network  // Imported to use NWBrowser for triggering the prompt
+import Network
 
 class InitialViewController: UIViewController {
 
@@ -18,16 +18,10 @@ class InitialViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Trigger the local network permission prompt early
         triggerLocalNetworkPrompt()
-        
-        // Initialize and use UDPCommunication
         udp = UDPCommunication(receivePort: 9999)
-        
-        // Configure the peer with your friend's IP
         udp?.configurePeer(ip: "206.87.217.87", port: 8888)
         
-        // Wait for connection to be ready before sending
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
             self.udp?.sendWhenReady(message: "💥 Bullet fired from device!")
         }
@@ -40,11 +34,8 @@ class InitialViewController: UIViewController {
         
         setupUI()
     }
-    
-    /// Uses NWBrowser to trigger the local network permission prompt.
-    /// This browser does not need to find any services.
+
     func triggerLocalNetworkPrompt() {
-        // Create a dummy Bonjour browser to prompt for local network access.
         let browser = NWBrowser(for: .bonjour(type: "_localservice._udp", domain: nil), using: .udp)
         browser.stateUpdateHandler = { state in
             print("NWBrowser state: \(state)")
@@ -77,7 +68,6 @@ class InitialViewController: UIViewController {
         stackView.addArrangedSubview(topView)
         
         let getStartedTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(getStartedButtonTapped(_:)))
-        // Adjust gesture recognizer settings for smooth interaction
         getStartedTapGestureRecognizer.cancelsTouchesInView = false
         getStartedTapGestureRecognizer.delaysTouchesBegan = false
         getStartedTapGestureRecognizer.delaysTouchesEnded = true
