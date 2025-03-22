@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7C0A5AC62D8F711D00A52426 /* UDPCommunication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C0A5AC52D8F711D00A52426 /* UDPCommunication.swift */; };
 		80417BC02D8F47E50086B127 /* InitialViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80417BBF2D8F47E50086B127 /* InitialViewController.swift */; };
 		80417BC52D8F48FC0086B127 /* StandardButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80417BC42D8F48FC0086B127 /* StandardButton.swift */; };
 		80417BC82D8F491E0086B127 /* LabelExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80417BC72D8F491E0086B127 /* LabelExtensions.swift */; };
@@ -47,6 +48,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7C0A5AC52D8F711D00A52426 /* UDPCommunication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPCommunication.swift; sourceTree = "<group>"; };
 		80417BBF2D8F47E50086B127 /* InitialViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialViewController.swift; sourceTree = "<group>"; };
 		80417BC42D8F48FC0086B127 /* StandardButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StandardButton.swift; sourceTree = "<group>"; };
 		80417BC72D8F491E0086B127 /* LabelExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabelExtensions.swift; sourceTree = "<group>"; };
@@ -160,6 +162,7 @@
 			children = (
 				80417BCC2D8F49A40086B127 /* NavigationService.swift */,
 				80417BDD2D8F5BB40086B127 /* GunService.swift */,
+				7C0A5AC52D8F711D00A52426 /* UDPCommunication.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -385,6 +388,7 @@
 				8076502E2D8F45D10067437E /* AppDelegate.swift in Sources */,
 				807650302D8F45D10067437E /* SceneDelegate.swift in Sources */,
 				80417BCD2D8F49A40086B127 /* NavigationService.swift in Sources */,
+				7C0A5AC62D8F711D00A52426 /* UDPCommunication.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
