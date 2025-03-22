@@ -8,6 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		80417BC02D8F47E50086B127 /* InitialViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80417BBF2D8F47E50086B127 /* InitialViewController.swift */; };
+		80417BC52D8F48FC0086B127 /* StandardButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80417BC42D8F48FC0086B127 /* StandardButton.swift */; };
+		80417BC82D8F491E0086B127 /* LabelExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80417BC72D8F491E0086B127 /* LabelExtensions.swift */; };
+		80417BCA2D8F492A0086B127 /* StackViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80417BC92D8F492A0086B127 /* StackViewExtensions.swift */; };
+		80417BCD2D8F49A40086B127 /* NavigationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80417BCC2D8F49A40086B127 /* NavigationService.swift */; };
+		80417BCF2D8F49EA0086B127 /* BattleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80417BCE2D8F49EA0086B127 /* BattleViewController.swift */; };
 		8076502E2D8F45D10067437E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8076502D2D8F45D10067437E /* AppDelegate.swift */; };
 		807650302D8F45D10067437E /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8076502F2D8F45D10067437E /* SceneDelegate.swift */; };
 		807650372D8F45D20067437E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 807650362D8F45D20067437E /* Assets.xcassets */; };
@@ -36,6 +41,11 @@
 
 /* Begin PBXFileReference section */
 		80417BBF2D8F47E50086B127 /* InitialViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialViewController.swift; sourceTree = "<group>"; };
+		80417BC42D8F48FC0086B127 /* StandardButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StandardButton.swift; sourceTree = "<group>"; };
+		80417BC72D8F491E0086B127 /* LabelExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabelExtensions.swift; sourceTree = "<group>"; };
+		80417BC92D8F492A0086B127 /* StackViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StackViewExtensions.swift; sourceTree = "<group>"; };
+		80417BCC2D8F49A40086B127 /* NavigationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationService.swift; sourceTree = "<group>"; };
+		80417BCE2D8F49EA0086B127 /* BattleViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BattleViewController.swift; sourceTree = "<group>"; };
 		8076502A2D8F45D10067437E /* BattleRoyale.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BattleRoyale.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8076502D2D8F45D10067437E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		8076502F2D8F45D10067437E /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -87,6 +97,7 @@
 			isa = PBXGroup;
 			children = (
 				80417BBF2D8F47E50086B127 /* InitialViewController.swift */,
+				80417BCE2D8F49EA0086B127 /* BattleViewController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -98,6 +109,40 @@
 				807650382D8F45D20067437E /* LaunchScreen.storyboard */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		80417BC22D8F48D40086B127 /* UIComponents */ = {
+			isa = PBXGroup;
+			children = (
+				80417BC62D8F49140086B127 /* Extensions */,
+				80417BC32D8F48DF0086B127 /* Buttons */,
+			);
+			path = UIComponents;
+			sourceTree = "<group>";
+		};
+		80417BC32D8F48DF0086B127 /* Buttons */ = {
+			isa = PBXGroup;
+			children = (
+				80417BC42D8F48FC0086B127 /* StandardButton.swift */,
+			);
+			path = Buttons;
+			sourceTree = "<group>";
+		};
+		80417BC62D8F49140086B127 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				80417BC72D8F491E0086B127 /* LabelExtensions.swift */,
+				80417BC92D8F492A0086B127 /* StackViewExtensions.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		80417BCB2D8F499C0086B127 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				80417BCC2D8F49A40086B127 /* NavigationService.swift */,
+			);
+			path = Services;
 			sourceTree = "<group>";
 		};
 		807650212D8F45D10067437E = {
@@ -127,6 +172,8 @@
 				80417BBD2D8F47270086B127 /* Core */,
 				80417BC12D8F48650086B127 /* Resources */,
 				80417BBE2D8F47770086B127 /* ViewControllers */,
+				80417BC22D8F48D40086B127 /* UIComponents */,
+				80417BCB2D8F499C0086B127 /* Services */,
 			);
 			path = BattleRoyale;
 			sourceTree = "<group>";
@@ -278,9 +325,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				80417BCF2D8F49EA0086B127 /* BattleViewController.swift in Sources */,
+				80417BC52D8F48FC0086B127 /* StandardButton.swift in Sources */,
+				80417BCA2D8F492A0086B127 /* StackViewExtensions.swift in Sources */,
+				80417BC82D8F491E0086B127 /* LabelExtensions.swift in Sources */,
 				80417BC02D8F47E50086B127 /* InitialViewController.swift in Sources */,
 				8076502E2D8F45D10067437E /* AppDelegate.swift in Sources */,
 				807650302D8F45D10067437E /* SceneDelegate.swift in Sources */,
+				80417BCD2D8F49A40086B127 /* NavigationService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -457,11 +509,12 @@
 				DEVELOPMENT_TEAM = 56PW2NS3XS;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BattleRoyale/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app uses the camera to display a live feed for the battle interface.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -469,9 +522,13 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "-21health.BattleRoyale";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -485,11 +542,12 @@
 				DEVELOPMENT_TEAM = 56PW2NS3XS;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BattleRoyale/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app uses the camera to display a live feed for the battle interface.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -497,9 +555,13 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "-21health.BattleRoyale";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
