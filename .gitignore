@@ -1,0 +1,28 @@
+# xcode
+*.xcworkspace/
+*.xcuserdata/
+*.xccheckout
+*.xcscmblueprint
+
+# spm
+.swiftpm/
+Package.resolved
+
+# data n artifacts
+DerivedData/
+build/
+
+# carthage
+Carthage/
+
+# archives
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# envs
+.env
+.env.*
+
+# mac stuff
+*.DS_Store
