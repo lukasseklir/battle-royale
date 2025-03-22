@@ -14,5 +14,11 @@ class NavigationService {
         battleVC.modalPresentationStyle = .fullScreen
         viewController.present(battleVC, animated: true, completion: nil)
     }
+    
+    func presentGunSelector(from viewController: UIViewController) {
+        let gunSelectorVC = GunSelectorViewController()
+        gunSelectorVC.modalPresentationStyle = .fullScreen
+        viewController.present(gunSelectorVC, animated: true, completion: nil)
+    }
 }
 

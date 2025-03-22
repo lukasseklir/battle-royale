@@ -11,7 +11,10 @@ import Vision
 
 class BattleViewController: UIViewController {
     
+    let bulletCountContainerView = UIView()
     let bulletCountLabel = UILabel.createLabel(fontSize: 18, color: .white, thickness: .bold, alignment: .center)
+    
+    let gunSelectorContainerView = UIView()
     let gunSelectorLabel = UILabel.createLabel(fontSize: 18, color: .white, thickness: .bold, alignment: .center)
     
     var nightVisionEnabled: Bool = false
@@ -111,7 +114,6 @@ class BattleViewController: UIViewController {
     }
     
     func setupBulletCountLabel() {
-        let bulletCountContainerView = UIView()
         bulletCountContainerView.translatesAutoresizingMaskIntoConstraints = false
         bulletCountLabel.translatesAutoresizingMaskIntoConstraints = false
 
@@ -136,7 +138,6 @@ class BattleViewController: UIViewController {
     }
     
     func setupGunSelectorLabel() {
-        let gunSelectorContainerView = UIView()
         gunSelectorContainerView.translatesAutoresizingMaskIntoConstraints = false
         gunSelectorLabel.translatesAutoresizingMaskIntoConstraints = false
 
@@ -157,6 +158,15 @@ class BattleViewController: UIViewController {
             gunSelectorLabel.leadingAnchor.constraint(equalTo: gunSelectorContainerView.leadingAnchor, constant: 5),
             gunSelectorLabel.trailingAnchor.constraint(equalTo: gunSelectorContainerView.trailingAnchor, constant: -5)
         ])
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(gunSelectorTapped))
+        gunSelectorContainerView.addGestureRecognizer(tapGesture)
+        gunSelectorContainerView.isUserInteractionEnabled = true
+    }
+    
+    @objc func gunSelectorTapped() {
+        let navigationService = NavigationService()
+        navigationService.presentGunSelector(from: self)
     }
     
     func updateBulletCountLabel(_ text: String) {
