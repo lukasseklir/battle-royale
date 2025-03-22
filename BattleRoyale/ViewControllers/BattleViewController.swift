@@ -9,7 +9,7 @@ import UIKit
 import AVFoundation
 import Vision
 
-class BattleViewController: UIViewController {
+class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
     
     let bulletCountContainerView = UIView()
     let bulletCountLabel = UILabel.createLabel(fontSize: 18, color: .white, thickness: .bold, alignment: .center)
@@ -26,7 +26,7 @@ class BattleViewController: UIViewController {
     var captureSession: AVCaptureSession!
     var previewLayer: AVCaptureVideoPreviewLayer!
     
-    // Bullet count is now based on the selected gun's magazine size.
+    // Bullet count based on selected gun's magazine size.
     var bulletCount: Int = 0
     var initialBulletCount: Int {
         return selectedGun?.magazineSize ?? 10
@@ -36,9 +36,12 @@ class BattleViewController: UIViewController {
     
     var latestObservations: [VNDetectedObjectObservation] = []
     
-    // Timer for full auto firing
+    // Timer for full auto firing.
     var autoFireTimer: Timer?
-
+    
+    // Property for nightVisionSwitch (changed from local variable).
+    var nightVisionSwitch: UISwitch!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -54,19 +57,36 @@ class BattleViewController: UIViewController {
         setupNightVisionToggle()
         setupGunSelectorLabel()
         
-        // Set a random gun on first launch
+        // Set a random gun on first launch.
         if let randomGun = GunService.shared.guns.randomElement() {
             selectedGun = randomGun
             gunSelectorLabel.text = randomGun.name
-            bulletCount = randomGun.magazineSize  // Initialize bullet count based on gun's magazine size
+            bulletCount = randomGun.magazineSize  // Initialize bullet count based on gun's magazine size.
             updateBulletCountLabel("\(bulletCount)")
         }
         
-        // Replace tap gesture with a long press gesture to handle both semi and full auto fire
+        // Replace tap gesture with a long press gesture to handle semi and full auto fire.
         let fireGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleFireGesture(_:)))
-        fireGesture.minimumPressDuration = 0 // Fires immediately
+        fireGesture.minimumPressDuration = 0 // Fires immediately.
+        // Set delegate so touches on controls are ignored.
+        fireGesture.delegate = self
         view.addGestureRecognizer(fireGesture)
     }
+    
+    // MARK: - UIGestureRecognizerDelegate
+    
+    // Prevent fireGesture from receiving touches on gunSelectorContainerView and nightVisionSwitch.
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        if let touchedView = touch.view {
+            if touchedView.isDescendant(of: gunSelectorContainerView) ||
+               touchedView.isDescendant(of: nightVisionSwitch) {
+                return false
+            }
+        }
+        return true
+    }
+    
+    // MARK: - Setup Methods
     
     func setupCamera() {
         captureSession = AVCaptureSession()
@@ -107,14 +127,17 @@ class BattleViewController: UIViewController {
         crosshairView = UIView()
         crosshairView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(crosshairView)
+        
         let horizontalLine = UIView()
         horizontalLine.backgroundColor = .red
         horizontalLine.translatesAutoresizingMaskIntoConstraints = false
         crosshairView.addSubview(horizontalLine)
+        
         let verticalLine = UIView()
         verticalLine.backgroundColor = .red
         verticalLine.translatesAutoresizingMaskIntoConstraints = false
         crosshairView.addSubview(verticalLine)
+        
         NSLayoutConstraint.activate([
             crosshairView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             crosshairView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
@@ -147,7 +170,6 @@ class BattleViewController: UIViewController {
         NSLayoutConstraint.activate([
             bulletCountContainerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
             bulletCountContainerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-
             bulletCountLabel.topAnchor.constraint(equalTo: bulletCountContainerView.topAnchor, constant: 5),
             bulletCountLabel.bottomAnchor.constraint(equalTo: bulletCountContainerView.bottomAnchor, constant: -5),
             bulletCountLabel.leadingAnchor.constraint(equalTo: bulletCountContainerView.leadingAnchor, constant: 5),
@@ -169,7 +191,6 @@ class BattleViewController: UIViewController {
         NSLayoutConstraint.activate([
             gunSelectorContainerView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             gunSelectorContainerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-
             gunSelectorLabel.topAnchor.constraint(equalTo: gunSelectorContainerView.topAnchor, constant: 5),
             gunSelectorLabel.bottomAnchor.constraint(equalTo: gunSelectorContainerView.bottomAnchor, constant: -5),
             gunSelectorLabel.leadingAnchor.constraint(equalTo: gunSelectorContainerView.leadingAnchor, constant: 5),
@@ -182,7 +203,7 @@ class BattleViewController: UIViewController {
     }
     
     @objc func gunSelectorTapped() {
-        // Instantiate and present the gun selector, setting self as its delegate
+        print("gun selector tapped")
         let gunSelectorVC = GunSelectorViewController()
         gunSelectorVC.delegate = self
         present(gunSelectorVC, animated: true, completion: nil)
@@ -193,7 +214,8 @@ class BattleViewController: UIViewController {
     }
     
     func setupNightVisionToggle() {
-        let nightVisionSwitch = UISwitch()
+        // Use the property nightVisionSwitch to allow gesture filtering.
+        nightVisionSwitch = UISwitch()
         nightVisionSwitch.translatesAutoresizingMaskIntoConstraints = false
         nightVisionSwitch.addTarget(self, action: #selector(nightVisionSwitchChanged(_:)), for: .valueChanged)
         view.addSubview(nightVisionSwitch)
@@ -217,16 +239,16 @@ class BattleViewController: UIViewController {
         nightVisionImageView.isHidden = !nightVisionEnabled
     }
     
-    // Gesture handler to differentiate between semi and full auto firing modes
+    // Gesture handler to differentiate between semi and full auto firing modes.
     @objc func handleFireGesture(_ gesture: UILongPressGestureRecognizer) {
         guard let gun = selectedGun else { return }
         if gun.isSemiAuto {
-            // Semi-auto: fire once when gesture begins
+            // Semi-auto: fire once when gesture begins.
             if gesture.state == .began {
                 shoot()
             }
         } else {
-            // Full-auto: start firing continuously while pressed
+            // Full-auto: start firing continuously while pressed.
             if gesture.state == .began {
                 autoFireTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
                     self?.shoot()
