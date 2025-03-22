@@ -16,6 +16,12 @@ class InitialViewController: UIViewController {
         super.viewDidLoad()
 
         setupUI()
+        
+        if let ip = udp?.localIPAddress {
+            print("📱 My IP address: \(ip)")
+        } else {
+            print("⚠️ No IP address found")
+        }
     }
     
     func setupUI() {
