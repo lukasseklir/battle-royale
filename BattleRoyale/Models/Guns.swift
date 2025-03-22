@@ -13,7 +13,6 @@ class Gun {
     var image: UIImage
     
     var reloadTime: Double
-    var ammoCount: Int
     var magazineSize: Int
     var isSemiAuto: Bool
     var damagePerShot: Double
@@ -24,7 +23,6 @@ class Gun {
         self.image = image
         self.reloadTime = reloadTime
         self.magazineSize = magazineSize
-        self.ammoCount = magazineSize
         self.isSemiAuto = isSemiAuto
         self.damagePerShot = damagePerShot
     }

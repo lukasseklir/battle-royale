@@ -17,6 +17,8 @@ class BattleViewController: UIViewController {
     let gunSelectorContainerView = UIView()
     let gunSelectorLabel = UILabel.createLabel(fontSize: 18, color: .white, thickness: .bold, alignment: .center)
     
+    var selectedGun: Gun?
+    
     var nightVisionEnabled: Bool = false
     var nightVisionImageView: UIImageView!
     let ciContext = CIContext()
@@ -45,6 +47,12 @@ class BattleViewController: UIViewController {
         setupBulletCountLabel()
         setupNightVisionToggle()
         setupGunSelectorLabel()
+        
+        // Set a random gun on first launch
+        if let randomGun = GunsService.shared.guns.randomElement() {
+            selectedGun = randomGun
+            gunSelectorLabel.text = randomGun.name
+        }
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))
         view.addGestureRecognizer(tapGesture)
@@ -146,7 +154,7 @@ class BattleViewController: UIViewController {
         gunSelectorContainerView.clipsToBounds = true
 
         gunSelectorContainerView.addSubview(gunSelectorLabel)
-        gunSelectorLabel.text = "blah"
+        // Remove placeholder text; gun name will be set on viewDidLoad
         view.addSubview(gunSelectorContainerView)
 
         NSLayoutConstraint.activate([
@@ -165,8 +173,10 @@ class BattleViewController: UIViewController {
     }
     
     @objc func gunSelectorTapped() {
-        let navigationService = NavigationService()
-        navigationService.presentGunSelector(from: self)
+        // Instantiate and present the gun selector, setting self as its delegate
+        let gunSelectorVC = GunSelectorViewController()
+        gunSelectorVC.delegate = self
+        present(gunSelectorVC, animated: true, completion: nil)
     }
     
     func updateBulletCountLabel(_ text: String) {
@@ -298,5 +308,13 @@ extension BattleViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
                 }
             }
         }
+    }
+}
+
+extension BattleViewController: GunSelectorDelegate {
+    // Update the current gun when one is selected in GunSelectorViewController
+    func didSelectGun(_ gun: Gun) {
+        selectedGun = gun
+        gunSelectorLabel.text = gun.name
     }
 }
