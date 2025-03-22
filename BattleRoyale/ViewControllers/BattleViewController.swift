@@ -10,24 +10,39 @@ import AVFoundation
 import Vision
 
 class BattleViewController: UIViewController {
+    
+    let bulletCountLabel = UILabel.createLabel(fontSize: 18, color: .white, thickness: .bold, alignment: .center)
+    let gunSelectorLabel = UILabel.createLabel(fontSize: 18, color: .white, thickness: .bold, alignment: .center)
+    
+    var nightVisionEnabled: Bool = false
+    var nightVisionImageView: UIImageView!
+    let ciContext = CIContext()
+    
     var captureSession: AVCaptureSession!
     var previewLayer: AVCaptureVideoPreviewLayer!
     
     var bulletCount: Int = 10
     let initialBulletCount: Int = 10
     var isReloading: Bool = false
-    var bulletCountLabel: UILabel!
     var crosshairView: UIView!
     
-    // Store the latest human detection observations
     var latestObservations: [VNDetectedObjectObservation] = []
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         setupCamera()
-        setupOverlay()
+        
+        nightVisionImageView = UIImageView(frame: view.bounds)
+        nightVisionImageView.contentMode = .scaleAspectFill
+        nightVisionImageView.isHidden = true
+        view.addSubview(nightVisionImageView)
+        
         setupCrosshair()
         setupBulletCountLabel()
+        setupNightVisionToggle()
+        setupGunSelectorLabel()
+        
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))
         view.addGestureRecognizer(tapGesture)
     }
@@ -67,22 +82,6 @@ class BattleViewController: UIViewController {
         captureSession.startRunning()
     }
     
-    func setupOverlay() {
-        let overlayLabel = UILabel()
-        overlayLabel.text = "Camera Overlay"
-        overlayLabel.textColor = .white
-        overlayLabel.backgroundColor = UIColor.black.withAlphaComponent(0.5)
-        overlayLabel.textAlignment = .center
-        overlayLabel.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(overlayLabel)
-        NSLayoutConstraint.activate([
-            overlayLabel.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
-            overlayLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            overlayLabel.widthAnchor.constraint(equalToConstant: 200),
-            overlayLabel.heightAnchor.constraint(equalToConstant: 40)
-        ])
-    }
-    
     func setupCrosshair() {
         crosshairView = UIView()
         crosshairView.translatesAutoresizingMaskIntoConstraints = false
@@ -112,24 +111,81 @@ class BattleViewController: UIViewController {
     }
     
     func setupBulletCountLabel() {
-        bulletCountLabel = UILabel()
+        let bulletCountContainerView = UIView()
+        bulletCountContainerView.translatesAutoresizingMaskIntoConstraints = false
         bulletCountLabel.translatesAutoresizingMaskIntoConstraints = false
-        bulletCountLabel.textColor = .white
-        bulletCountLabel.backgroundColor = UIColor.black.withAlphaComponent(0.5)
-        bulletCountLabel.textAlignment = .center
-        bulletCountLabel.font = UIFont.systemFont(ofSize: 16, weight: .bold)
+
+        bulletCountContainerView.backgroundColor = .black.withAlphaComponent(0.5)
+        bulletCountContainerView.layer.cornerRadius = 10
+        bulletCountContainerView.clipsToBounds = true
+
+        bulletCountContainerView.addSubview(bulletCountLabel)
+        view.addSubview(bulletCountContainerView)
+
         updateBulletCountLabel("\(bulletCount)")
-        view.addSubview(bulletCountLabel)
+
         NSLayoutConstraint.activate([
-            bulletCountLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            bulletCountLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-            bulletCountLabel.widthAnchor.constraint(equalToConstant: 50),
-            bulletCountLabel.heightAnchor.constraint(equalToConstant: 30)
+            bulletCountContainerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            bulletCountContainerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+
+            bulletCountLabel.topAnchor.constraint(equalTo: bulletCountContainerView.topAnchor, constant: 5),
+            bulletCountLabel.bottomAnchor.constraint(equalTo: bulletCountContainerView.bottomAnchor, constant: -5),
+            bulletCountLabel.leadingAnchor.constraint(equalTo: bulletCountContainerView.leadingAnchor, constant: 5),
+            bulletCountLabel.trailingAnchor.constraint(equalTo: bulletCountContainerView.trailingAnchor, constant: -5)
+        ])
+    }
+    
+    func setupGunSelectorLabel() {
+        let gunSelectorContainerView = UIView()
+        gunSelectorContainerView.translatesAutoresizingMaskIntoConstraints = false
+        gunSelectorLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        gunSelectorContainerView.backgroundColor = .black.withAlphaComponent(0.5)
+        gunSelectorContainerView.layer.cornerRadius = 10
+        gunSelectorContainerView.clipsToBounds = true
+
+        gunSelectorContainerView.addSubview(gunSelectorLabel)
+        gunSelectorLabel.text = "blah"
+        view.addSubview(gunSelectorContainerView)
+
+        NSLayoutConstraint.activate([
+            gunSelectorContainerView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            gunSelectorContainerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+
+            gunSelectorLabel.topAnchor.constraint(equalTo: gunSelectorContainerView.topAnchor, constant: 5),
+            gunSelectorLabel.bottomAnchor.constraint(equalTo: gunSelectorContainerView.bottomAnchor, constant: -5),
+            gunSelectorLabel.leadingAnchor.constraint(equalTo: gunSelectorContainerView.leadingAnchor, constant: 5),
+            gunSelectorLabel.trailingAnchor.constraint(equalTo: gunSelectorContainerView.trailingAnchor, constant: -5)
         ])
     }
     
     func updateBulletCountLabel(_ text: String) {
-        bulletCountLabel.text = text
+        bulletCountLabel.text = "Ammo: \(text)"
+    }
+    
+    func setupNightVisionToggle() {
+        let nightVisionSwitch = UISwitch()
+        nightVisionSwitch.translatesAutoresizingMaskIntoConstraints = false
+        nightVisionSwitch.addTarget(self, action: #selector(nightVisionSwitchChanged(_:)), for: .valueChanged)
+        view.addSubview(nightVisionSwitch)
+        
+        let nightVisionLabel = UILabel()
+        nightVisionLabel.text = "Night Vision"
+        nightVisionLabel.textColor = .white
+        nightVisionLabel.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(nightVisionLabel)
+        
+        NSLayoutConstraint.activate([
+            nightVisionSwitch.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            nightVisionSwitch.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            nightVisionLabel.centerYAnchor.constraint(equalTo: nightVisionSwitch.centerYAnchor),
+            nightVisionLabel.leadingAnchor.constraint(equalTo: nightVisionSwitch.trailingAnchor, constant: 8)
+        ])
+    }
+    
+    @objc func nightVisionSwitchChanged(_ sender: UISwitch) {
+        nightVisionEnabled = sender.isOn
+        nightVisionImageView.isHidden = !nightVisionEnabled
     }
     
     @objc func handleTap() {
@@ -174,12 +230,9 @@ class BattleViewController: UIViewController {
             }
         }
     }
-
 }
 
-// MARK: - Helper Methods
 extension BattleViewController {
-    // Convert a Vision observation's bounding box to view coordinates.
     func viewRect(for observation: VNDetectedObjectObservation) -> CGRect {
         let normalizedRect = observation.boundingBox
         let metadataRect = CGRect(
@@ -191,7 +244,6 @@ extension BattleViewController {
         return previewLayer.layerRectConverted(fromMetadataOutputRect: metadataRect)
     }
     
-    // Check if any detected person intersects with the crosshair area.
     func isPersonInCrosshair() -> Bool {
         for observation in latestObservations {
             let detectionRect = viewRect(for: observation)
@@ -206,9 +258,10 @@ extension BattleViewController {
 extension BattleViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
+        
         let request = VNDetectHumanRectanglesRequest { [weak self] request, error in
-            guard let self = self, let observations = request.results as? [VNDetectedObjectObservation] else { return }
-            // Update the latest observations on the main thread
+            guard let self = self,
+                  let observations = request.results as? [VNDetectedObjectObservation] else { return }
             DispatchQueue.main.async {
                 self.latestObservations = observations
             }
@@ -218,6 +271,22 @@ extension BattleViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
             try handler.perform([request])
         } catch {
             print("Vision request failed: \(error)")
+        }
+        
+        if nightVisionEnabled {
+            let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
+            if let filter = CIFilter(name: "CIColorMonochrome") {
+                filter.setValue(ciImage, forKey: kCIInputImageKey)
+                filter.setValue(CIColor(red: 0.0, green: 1.0, blue: 0.0), forKey: kCIInputColorKey)
+                filter.setValue(1.0, forKey: kCIInputIntensityKey)
+                if let outputImage = filter.outputImage,
+                   let cgImage = ciContext.createCGImage(outputImage, from: outputImage.extent) {
+                    let uiImage = UIImage(cgImage: cgImage)
+                    DispatchQueue.main.async {
+                        self.nightVisionImageView.image = uiImage
+                    }
+                }
+            }
         }
     }
 }

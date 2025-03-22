@@ -13,6 +13,7 @@
 		80417BCA2D8F492A0086B127 /* StackViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80417BC92D8F492A0086B127 /* StackViewExtensions.swift */; };
 		80417BCD2D8F49A40086B127 /* NavigationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80417BCC2D8F49A40086B127 /* NavigationService.swift */; };
 		80417BCF2D8F49EA0086B127 /* BattleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80417BCE2D8F49EA0086B127 /* BattleViewController.swift */; };
+		80417BD12D8F55FA0086B127 /* ViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80417BD02D8F55FA0086B127 /* ViewExtensions.swift */; };
 		8076502E2D8F45D10067437E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8076502D2D8F45D10067437E /* AppDelegate.swift */; };
 		807650302D8F45D10067437E /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8076502F2D8F45D10067437E /* SceneDelegate.swift */; };
 		807650372D8F45D20067437E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 807650362D8F45D20067437E /* Assets.xcassets */; };
@@ -46,6 +47,7 @@
 		80417BC92D8F492A0086B127 /* StackViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StackViewExtensions.swift; sourceTree = "<group>"; };
 		80417BCC2D8F49A40086B127 /* NavigationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationService.swift; sourceTree = "<group>"; };
 		80417BCE2D8F49EA0086B127 /* BattleViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BattleViewController.swift; sourceTree = "<group>"; };
+		80417BD02D8F55FA0086B127 /* ViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewExtensions.swift; sourceTree = "<group>"; };
 		8076502A2D8F45D10067437E /* BattleRoyale.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BattleRoyale.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8076502D2D8F45D10067437E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		8076502F2D8F45D10067437E /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -133,6 +135,7 @@
 			children = (
 				80417BC72D8F491E0086B127 /* LabelExtensions.swift */,
 				80417BC92D8F492A0086B127 /* StackViewExtensions.swift */,
+				80417BD02D8F55FA0086B127 /* ViewExtensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -171,9 +174,9 @@
 				8076503B2D8F45D20067437E /* Info.plist */,
 				80417BBD2D8F47270086B127 /* Core */,
 				80417BC12D8F48650086B127 /* Resources */,
+				80417BCB2D8F499C0086B127 /* Services */,
 				80417BBE2D8F47770086B127 /* ViewControllers */,
 				80417BC22D8F48D40086B127 /* UIComponents */,
-				80417BCB2D8F499C0086B127 /* Services */,
 			);
 			path = BattleRoyale;
 			sourceTree = "<group>";
@@ -329,6 +332,7 @@
 				80417BC52D8F48FC0086B127 /* StandardButton.swift in Sources */,
 				80417BCA2D8F492A0086B127 /* StackViewExtensions.swift in Sources */,
 				80417BC82D8F491E0086B127 /* LabelExtensions.swift in Sources */,
+				80417BD12D8F55FA0086B127 /* ViewExtensions.swift in Sources */,
 				80417BC02D8F47E50086B127 /* InitialViewController.swift in Sources */,
 				8076502E2D8F45D10067437E /* AppDelegate.swift in Sources */,
 				807650302D8F45D10067437E /* SceneDelegate.swift in Sources */,
