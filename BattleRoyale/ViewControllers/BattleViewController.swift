@@ -40,11 +40,15 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
     // Timer for full auto firing.
     var autoFireTimer: Timer?
     
-    // Property for nightVisionSwitch (changed from local variable).
+    // Property for nightVisionSwitch.
     var nightVisionSwitch: UISwitch!
     
     var hitmarkerPlayer: AVAudioPlayer?
     var udp: UDPCommunication?
+    
+    // New: player's health and label.
+    var hp: Double = 1000  // Player starts with 1000 hp.
+    let hpLabel = UILabel.createLabel(fontSize: 18, color: .white, thickness: .bold, alignment: .center)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -52,6 +56,15 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
         triggerLocalNetworkPrompt()
         udp = UDPCommunication(receivePort: 8888)
         udp?.configurePeer(ip: "206.87.217.87", port: 9999)
+        
+        // Set up callback for hit messages.
+        udp?.onHitReceived = { [weak self] damage in
+            guard let self = self else { return }
+            self.hp -= damage
+            DispatchQueue.main.async {
+                self.updateHPLabel()
+            }
+        }
         
         if let ip = udp?.localIPAddress {
             print("📱 My IP address: \(ip)")
@@ -87,26 +100,25 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
         setupBulletCountLabel()
         setupNightVisionToggle()
         setupGunSelectorLabel()
+        setupHPLabel()  // Setup health label.
         
         // Set a random gun on first launch.
         if let randomGun = GunService.shared.guns.randomElement() {
             selectedGun = randomGun
             gunSelectorLabel.text = "\(randomGun.name), \(randomGun.isSemiAuto ? "Semi-Auto" : "Full-Auto")"
-            bulletCount = randomGun.magazineSize  // Initialize bullet count based on gun's magazine size.
+            bulletCount = randomGun.magazineSize  // Initialize bullet count.
             updateBulletCountLabel("\(bulletCount)")
         }
         
-        // Replace tap gesture with a long press gesture to handle semi and full auto fire.
+        // Replace tap gesture with long press to handle firing modes.
         let fireGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleFireGesture(_:)))
         fireGesture.minimumPressDuration = 0 // Fires immediately.
-        // Set delegate so touches on controls are ignored.
-        fireGesture.delegate = self
+        fireGesture.delegate = self  // Prevent touches on controls.
         view.addGestureRecognizer(fireGesture)
     }
     
     // MARK: - UIGestureRecognizerDelegate
     
-    // Prevent fireGesture from receiving touches on gunSelectorContainerView and nightVisionSwitch.
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
         if let touchedView = touch.view {
             if touchedView.isDescendant(of: gunSelectorContainerView) ||
@@ -233,19 +245,7 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
         gunSelectorContainerView.isUserInteractionEnabled = true
     }
     
-    @objc func gunSelectorTapped() {
-        print("gun selector tapped")
-        let gunSelectorVC = GunSelectorViewController()
-        gunSelectorVC.delegate = self
-        present(gunSelectorVC, animated: true, completion: nil)
-    }
-    
-    func updateBulletCountLabel(_ text: String) {
-        bulletCountLabel.text = "Ammo: \(text)"
-    }
-    
     func setupNightVisionToggle() {
-        // Use the property nightVisionSwitch to allow gesture filtering.
         nightVisionSwitch = UISwitch()
         nightVisionSwitch.translatesAutoresizingMaskIntoConstraints = false
         nightVisionSwitch.addTarget(self, action: #selector(nightVisionSwitchChanged(_:)), for: .valueChanged)
@@ -265,21 +265,49 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
         ])
     }
     
+    func setupHPLabel() {
+        hpLabel.translatesAutoresizingMaskIntoConstraints = false
+        hpLabel.text = "HP: \(Int(hp))"
+        hpLabel.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        hpLabel.layer.cornerRadius = 10
+        hpLabel.clipsToBounds = true
+        view.addSubview(hpLabel)
+        
+        NSLayoutConstraint.activate([
+            hpLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            hpLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            hpLabel.heightAnchor.constraint(equalToConstant: 30)
+        ])
+    }
+    
+    func updateBulletCountLabel(_ text: String) {
+        bulletCountLabel.text = "Ammo: \(text)"
+    }
+    
+    func updateHPLabel() {
+        hpLabel.text = "HP: \(Int(hp))"
+    }
+    
     @objc func nightVisionSwitchChanged(_ sender: UISwitch) {
         nightVisionEnabled = sender.isOn
         nightVisionImageView.isHidden = !nightVisionEnabled
     }
     
-    // Gesture handler to differentiate between semi and full auto firing modes.
+    @objc func gunSelectorTapped() {
+        print("gun selector tapped")
+        let gunSelectorVC = GunSelectorViewController()
+        gunSelectorVC.delegate = self
+        present(gunSelectorVC, animated: true, completion: nil)
+    }
+    
+    // Gesture handler for semi and full auto firing.
     @objc func handleFireGesture(_ gesture: UILongPressGestureRecognizer) {
         guard let gun = selectedGun else { return }
         if gun.isSemiAuto {
-            // Semi-auto: fire once when gesture begins.
             if gesture.state == .began {
                 shoot()
             }
         } else {
-            // Full-auto: start firing continuously while pressed.
             if gesture.state == .began {
                 autoFireTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
                     self?.shoot()
@@ -301,13 +329,13 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
             shootHaptic.impactOccurred()
             
             createBulletTracer()
-            sendHit()
             
             if isPersonInCrosshair() {
                 let hitHaptic = UINotificationFeedbackGenerator()
                 hitHaptic.notificationOccurred(.success)
                 animateHitFeedback()
                 hitmarkerPlayer?.play()
+                sendHit()
             }
             
             if bulletCount == 0 {
@@ -411,27 +439,22 @@ extension BattleViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
     }
     
     func createBulletTracer() {
-        // Define start and end points
         let startPoint = CGPoint(x: view.bounds.width - 30, y: view.bounds.height - 30)
         let endPoint = crosshairView.center
 
-        // Create a path from start to end
         let tracerPath = UIBezierPath()
         tracerPath.move(to: startPoint)
         tracerPath.addLine(to: endPoint)
         
-        // Configure a CAShapeLayer to display the path
         let tracerLayer = CAShapeLayer()
         tracerLayer.path = tracerPath.cgPath
         tracerLayer.strokeColor = UIColor.yellow.cgColor
         tracerLayer.lineWidth = 2.0
         tracerLayer.lineCap = .round
-        tracerLayer.strokeEnd = 0  // Start with no visible stroke
+        tracerLayer.strokeEnd = 0
         
-        // Add the tracer layer to the view's layer hierarchy
         view.layer.addSublayer(tracerLayer)
         
-        // Animate strokeEnd from 0 to 1 to simulate the tracer moving along the line
         let animationDuration: CFTimeInterval = 0.15
         let strokeAnimation = CABasicAnimation(keyPath: "strokeEnd")
         strokeAnimation.fromValue = 0
@@ -440,7 +463,6 @@ extension BattleViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
         strokeAnimation.timingFunction = CAMediaTimingFunction(name: .easeOut)
         tracerLayer.add(strokeAnimation, forKey: "strokeEndAnimation")
         
-        // Remove the layer after the animation completes
         DispatchQueue.main.asyncAfter(deadline: .now() + animationDuration) {
             tracerLayer.removeFromSuperlayer()
         }
@@ -448,7 +470,6 @@ extension BattleViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
 }
 
 extension BattleViewController: GunSelectorDelegate {
-    // When a new gun is selected, start in reloading mode and update the bullet count based on the gun.
     func didSelectGun(_ gun: Gun) {
         selectedGun = gun
         gunSelectorLabel.text = "\(gun.name), \(gun.isSemiAuto ? "Semi-Auto" : "Full-Auto")"

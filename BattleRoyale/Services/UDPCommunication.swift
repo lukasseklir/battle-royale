@@ -17,6 +17,9 @@ class UDPCommunication: ObservableObject {
     
     @Published var lastReceivedMessage: String = ""
     @Published var connectionState: String = "Not Connected"
+    
+    // New: Closure called when a hit message is received.
+    var onHitReceived: ((Double) -> Void)?
 
     init(receivePort: UInt16) {
         self.receivePort = NWEndpoint.Port(rawValue: receivePort)!
@@ -110,6 +113,15 @@ class UDPCommunication: ObservableObject {
                 print("📥 Received: \(message)")
                 DispatchQueue.main.async {
                     self?.lastReceivedMessage = message
+                }
+                // Check if the message is a hit message.
+                if message.hasPrefix("hit:") {
+                    let damageString = message.replacingOccurrences(of: "hit:", with: "").trimmingCharacters(in: .whitespaces)
+                    if let damage = Double(damageString) {
+                        DispatchQueue.main.async {
+                            self?.onHitReceived?(damage)
+                        }
+                    }
                 }
             } else if data != nil {
                 print("📥 Received data but couldn't decode as UTF-8")
