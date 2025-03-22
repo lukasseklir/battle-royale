@@ -12,8 +12,16 @@ class InitialViewController: UIViewController {
     let titleLabel = UILabel.createLabel(fontSize: 40, color: .white, thickness: .heavy, numLines: 0, text: "Let's\nBattle")
     let getStartedButton = StandardButton(title: "Get Started", tintColor: .systemIndigo, backgroundColor: .white)
     
+    var udp: UDPCommunication?
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        //test
+        udp = UDPCommunication(receivePort: 9999)
+        udp?.configurePeer(ip: "192.168.1.15", port: 8888)
+        udp?.send(message: "💥 Bullet fired from device!")
+        
+         
         
         setupUI()
     }

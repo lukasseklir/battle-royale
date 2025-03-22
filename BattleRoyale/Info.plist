@@ -19,5 +19,7 @@
 			</array>
 		</dict>
 	</dict>
+    <key>NSLocalNetworkUsageDescription</key>
+    <string>This app needs access to other devices on your local network for multiplayer communication.</string>
 </dict>
 </plist>
