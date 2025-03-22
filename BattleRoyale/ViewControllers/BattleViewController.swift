@@ -276,15 +276,17 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
                 hitHaptic.notificationOccurred(.success)
                 animateHitFeedback()
             }
-        } else {
-            isReloading = true
-            updateBulletCountLabel("Reloading...")
-            if let reloadTime = selectedGun?.reloadTime {
-                DispatchQueue.main.asyncAfter(deadline: .now() + reloadTime) { [weak self] in
-                    guard let self = self else { return }
-                    self.bulletCount = self.initialBulletCount
-                    self.isReloading = false
-                    self.updateBulletCountLabel("\(self.bulletCount)")
+            
+            if bulletCount == 0 {
+                isReloading = true
+                updateBulletCountLabel("Reloading...")
+                if let reloadTime = selectedGun?.reloadTime {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + reloadTime) { [weak self] in
+                        guard let self = self else { return }
+                        self.bulletCount = self.initialBulletCount
+                        self.isReloading = false
+                        self.updateBulletCountLabel("\(self.bulletCount)")
+                    }
                 }
             }
         }
