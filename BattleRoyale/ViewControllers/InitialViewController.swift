@@ -23,10 +23,20 @@ class InitialViewController: UIViewController {
         
         // Initialize and use UDPCommunication
         udp = UDPCommunication(receivePort: 9999)
-        udp?.configurePeer(ip: "206.87.217.87", port: 8888)
-        udp?.send(message: "💥 Bullet fired from device!")
         
-        print(udp?.localIPAddress ?? "No IP found")
+        // Configure the peer with your friend's IP
+        udp?.configurePeer(ip: "206.87.217.87", port: 8888)
+        
+        // Wait for connection to be ready before sending
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            self.udp?.sendWhenReady(message: "💥 Bullet fired from device!")
+        }
+        
+        if let ip = udp?.localIPAddress {
+            print("📱 My IP address: \(ip)")
+        } else {
+            print("⚠️ No IP address found")
+        }
         
         setupUI()
     }
