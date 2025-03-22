@@ -6,41 +6,16 @@
 //
 
 import UIKit
-import Network
 
 class InitialViewController: UIViewController {
 
     let titleLabel = UILabel.createLabel(fontSize: 40, color: .white, thickness: .heavy, numLines: 0, text: "Let's\nBattle")
     let getStartedButton = StandardButton(title: "Get Started", tintColor: .systemIndigo, backgroundColor: .white)
     
-    var udp: UDPCommunication?
-    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        triggerLocalNetworkPrompt()
-        udp = UDPCommunication(receivePort: 9999)
-        udp?.configurePeer(ip: "206.87.217.87", port: 8888)
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            self.udp?.sendWhenReady(message: "💥 Bullet fired from device!")
-        }
-        
-        if let ip = udp?.localIPAddress {
-            print("📱 My IP address: \(ip)")
-        } else {
-            print("⚠️ No IP address found")
-        }
-        
-        setupUI()
-    }
 
-    func triggerLocalNetworkPrompt() {
-        let browser = NWBrowser(for: .bonjour(type: "_localservice._udp", domain: nil), using: .udp)
-        browser.stateUpdateHandler = { state in
-            print("NWBrowser state: \(state)")
-        }
-        browser.start(queue: .main)
+        setupUI()
     }
     
     func setupUI() {

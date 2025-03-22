@@ -8,6 +8,7 @@
 import UIKit
 import AVFoundation
 import Vision
+import Network
 
 class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
     
@@ -43,9 +44,14 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
     var nightVisionSwitch: UISwitch!
     
     var hitmarkerPlayer: AVAudioPlayer?
+    var udp: UDPCommunication?
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        triggerLocalNetworkPrompt()
+        udp = UDPCommunication(receivePort: 8888)
+        udp?.configurePeer(ip: "206.87.217.87", port: 9999)
         
         // Set up audio session for playback.
         do {
@@ -289,6 +295,7 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
             shootHaptic.impactOccurred()
             
             createBulletTracer()
+            sendHit()
             
             if isPersonInCrosshair() {
                 let hitHaptic = UINotificationFeedbackGenerator()
@@ -312,6 +319,11 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
         }
     }
     
+    func sendHit() {
+        guard let selectedGun = selectedGun else { return }
+        self.udp?.sendWhenReady(message: "hit: \(selectedGun.damagePerShot)")
+    }
+    
     func animateHitFeedback() {
         for subview in crosshairView.subviews {
             let originalColor = subview.backgroundColor
@@ -323,6 +335,14 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
                 }
             }
         }
+    }
+    
+    func triggerLocalNetworkPrompt() {
+        let browser = NWBrowser(for: .bonjour(type: "_localservice._udp", domain: nil), using: .udp)
+        browser.stateUpdateHandler = { state in
+            print("NWBrowser state: \(state)")
+        }
+        browser.start(queue: .main)
     }
 }
 
