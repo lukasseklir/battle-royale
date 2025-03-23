@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		7C0A5AC62D8F711D00A52426 /* UDPCommunication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C0A5AC52D8F711D00A52426 /* UDPCommunication.swift */; };
+		7CF8AA542D8F78040033F7A9 /* Ice_Gun.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 7CF8AA532D8F78040033F7A9 /* Ice_Gun.usdz */; };
+		7CF8AA562D8F98D80033F7A9 /* RAY_GUN.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 7CF8AA552D8F98D80033F7A9 /* RAY_GUN.usdz */; };
 		80417BC02D8F47E50086B127 /* InitialViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80417BBF2D8F47E50086B127 /* InitialViewController.swift */; };
 		80417BC52D8F48FC0086B127 /* StandardButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80417BC42D8F48FC0086B127 /* StandardButton.swift */; };
 		80417BC82D8F491E0086B127 /* LabelExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80417BC72D8F491E0086B127 /* LabelExtensions.swift */; };
@@ -51,6 +53,8 @@
 
 /* Begin PBXFileReference section */
 		7C0A5AC52D8F711D00A52426 /* UDPCommunication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPCommunication.swift; sourceTree = "<group>"; };
+		7CF8AA532D8F78040033F7A9 /* Ice_Gun.usdz */ = {isa = PBXFileReference; lastKnownFileType = file; path = Ice_Gun.usdz; sourceTree = "<group>"; };
+		7CF8AA552D8F98D80033F7A9 /* RAY_GUN.usdz */ = {isa = PBXFileReference; lastKnownFileType = file; path = RAY_GUN.usdz; sourceTree = "<group>"; };
 		80417BBF2D8F47E50086B127 /* InitialViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialViewController.swift; sourceTree = "<group>"; };
 		80417BC42D8F48FC0086B127 /* StandardButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StandardButton.swift; sourceTree = "<group>"; };
 		80417BC72D8F491E0086B127 /* LabelExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabelExtensions.swift; sourceTree = "<group>"; };
@@ -128,6 +132,8 @@
 			children = (
 				807650362D8F45D20067437E /* Assets.xcassets */,
 				807650382D8F45D20067437E /* LaunchScreen.storyboard */,
+				7CF8AA532D8F78040033F7A9 /* Ice_Gun.usdz */,
+				7CF8AA552D8F98D80033F7A9 /* RAY_GUN.usdz */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -356,6 +362,8 @@
 				807650372D8F45D20067437E /* Assets.xcassets in Resources */,
 				80417BF02D8F996E0086B127 /* miss.mp3 in Resources */,
 				8076503A2D8F45D20067437E /* Base in Resources */,
+				7CF8AA562D8F98D80033F7A9 /* RAY_GUN.usdz in Resources */,
+				7CF8AA542D8F78040033F7A9 /* Ice_Gun.usdz in Resources */,
 				80417BE22D8F720B0086B127 /* hitmarker.mp3 in Resources */,
 				80417BEE2D8F99580086B127 /* damage.mp3 in Resources */,
 			);
