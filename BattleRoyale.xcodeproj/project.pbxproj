@@ -21,6 +21,8 @@
 		80417BDC2D8F5B2D0086B127 /* GunTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80417BDB2D8F5B2D0086B127 /* GunTableViewCell.swift */; };
 		80417BDE2D8F5BB40086B127 /* GunService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80417BDD2D8F5BB40086B127 /* GunService.swift */; };
 		80417BE22D8F720B0086B127 /* hitmarker.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 80417BE12D8F720B0086B127 /* hitmarker.mp3 */; };
+		80417BE72D8F96050086B127 /* damage.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 80417BE52D8F96050086B127 /* damage.mp3 */; };
+		80417BE82D8F96050086B127 /* miss.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 80417BE62D8F96050086B127 /* miss.mp3 */; };
 		8076502E2D8F45D10067437E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8076502D2D8F45D10067437E /* AppDelegate.swift */; };
 		807650302D8F45D10067437E /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8076502F2D8F45D10067437E /* SceneDelegate.swift */; };
 		807650372D8F45D20067437E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 807650362D8F45D20067437E /* Assets.xcassets */; };
@@ -62,6 +64,8 @@
 		80417BDB2D8F5B2D0086B127 /* GunTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GunTableViewCell.swift; sourceTree = "<group>"; };
 		80417BDD2D8F5BB40086B127 /* GunService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GunService.swift; sourceTree = "<group>"; };
 		80417BE12D8F720B0086B127 /* hitmarker.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = hitmarker.mp3; sourceTree = "<group>"; };
+		80417BE52D8F96050086B127 /* damage.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = damage.mp3; sourceTree = "<group>"; };
+		80417BE62D8F96050086B127 /* miss.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = miss.mp3; sourceTree = "<group>"; };
 		8076502A2D8F45D10067437E /* BattleRoyale.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BattleRoyale.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8076502D2D8F45D10067437E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		8076502F2D8F45D10067437E /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -215,6 +219,8 @@
 			isa = PBXGroup;
 			children = (
 				8076503B2D8F45D20067437E /* Info.plist */,
+				80417BE52D8F96050086B127 /* damage.mp3 */,
+				80417BE62D8F96050086B127 /* miss.mp3 */,
 				80417BE12D8F720B0086B127 /* hitmarker.mp3 */,
 				80417BBD2D8F47270086B127 /* Core */,
 				80417BC12D8F48650086B127 /* Resources */,
@@ -348,8 +354,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				807650372D8F45D20067437E /* Assets.xcassets in Resources */,
+				80417BE82D8F96050086B127 /* miss.mp3 in Resources */,
 				8076503A2D8F45D20067437E /* Base in Resources */,
 				80417BE22D8F720B0086B127 /* hitmarker.mp3 in Resources */,
+				80417BE72D8F96050086B127 /* damage.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
