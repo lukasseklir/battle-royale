@@ -13,12 +13,21 @@ import RealityKit
 class GunTableViewCell: UITableViewCell {
     
     let containerView = UIView()
+<<<<<<< Updated upstream
     let nameLabel = UILabel.createLabel(fontSize: 18, color: .black, thickness: .bold, numLines: 0, alignment: .left)
     let descriptionLabel = UILabel.createLabel(fontSize: 14, color: .systemGray, thickness: .semibold, numLines: 0, alignment: .left)
     let reloadTimeLabel = UILabel.createLabel(fontSize: 14, color: .systemGray, thickness: .semibold, numLines: 0, alignment: .left)
     let magazineSizeLabel = UILabel.createLabel(fontSize: 14, color: .systemGray, thickness: .semibold, numLines: 0, alignment: .left)
     let isSemiAutoLabel = UILabel.createLabel(fontSize: 14, color: .systemGray, thickness: .semibold, numLines: 0, alignment: .left)
     let damagePerShotLabel = UILabel.createLabel(fontSize: 14, color: .systemGray, thickness: .semibold, numLines: 0, alignment: .left)
+=======
+    let nameLabel = UILabel.createLabel(fontSize: 16, color: .black, thickness: .medium, numLines: 0, alignment: .left)
+    let descriptionLabel = UILabel.createLabel(fontSize: 16, color: .black, thickness: .medium, numLines: 0, alignment: .left)
+    let reloadTimeLabel = UILabel.createLabel(fontSize: 16, color: .black, thickness: .medium, numLines: 0, alignment: .left)
+    let magazineSizeLabel = UILabel.createLabel(fontSize: 16, color: .black, thickness: .medium, numLines: 0, alignment: .left)
+    let isSemiAutoLabel = UILabel.createLabel(fontSize: 16, color: .black, thickness: .medium, numLines: 0, alignment: .left)
+    let damagePerShotLabel = UILabel.createLabel(fontSize: 16, color: .black, thickness: .medium, numLines: 0, alignment: .left)
+>>>>>>> Stashed changes
     let gunModelView = UIView(frame: CGRect(x: 50, y: 100, width: 300, height: 300))
 
     var gun: Gun? {
@@ -73,6 +82,7 @@ class GunTableViewCell: UITableViewCell {
         isSemiAutoLabel.text = gun.isSemiAuto ? "Semi-Auto" : "Full-Auto"
         damagePerShotLabel.text = "Damage: \(gun.damagePerShot)"
         
+<<<<<<< Updated upstream
         gunModelView.subviews.forEach { $0.removeFromSuperview() }
         
         // Create a SceneView to display the 3D model
@@ -80,6 +90,12 @@ class GunTableViewCell: UITableViewCell {
         sceneView.translatesAutoresizingMaskIntoConstraints = false
         
         // Add sceneView to gunModelView and set constraints
+=======
+        // Create a SceneView to display the 3D model
+        // let sceneView = SCNView(frame: gunModelView.bounds)
+        let sceneView = SCNView()
+        sceneView.translatesAutoresizingMaskIntoConstraints = false
+>>>>>>> Stashed changes
         gunModelView.addSubview(sceneView)
         NSLayoutConstraint.activate([
             sceneView.topAnchor.constraint(equalTo: gunModelView.topAnchor),
@@ -87,6 +103,7 @@ class GunTableViewCell: UITableViewCell {
             sceneView.leadingAnchor.constraint(equalTo: gunModelView.leadingAnchor),
             sceneView.trailingAnchor.constraint(equalTo: gunModelView.trailingAnchor)
         ])
+<<<<<<< Updated upstream
         
         // Set width constraint if needed
         gunModelView.widthAnchor.constraint(equalToConstant: 300).isActive = true
@@ -122,6 +139,22 @@ class GunTableViewCell: UITableViewCell {
         } else {
             print("Failed to load the scene: \(gun.fileName)")
         }
+=======
+        gunModelView.addSubview(sceneView)
+        gunModelView.widthAnchor.constraint(equalToConstant: 300).isActive = true
+        
+        let modelScene = SCNScene(named: gun.fileName)
+        let lightNode = SCNNode()
+        lightNode.light = SCNLight()
+        lightNode.light?.type = .omni
+        lightNode.position = SCNVector3(x: 0, y: 10, z: 35)
+        modelScene?.rootNode.addChildNode(lightNode)
+        // Set properties (optional)
+        sceneView.autoenablesDefaultLighting = true
+        sceneView.allowsCameraControl = true // Optional, for user interaction
+        sceneView.backgroundColor = .clear // Ensure transparency
+        sceneView.scene = modelScene
+>>>>>>> Stashed changes
     }
 }
 

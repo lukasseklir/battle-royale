@@ -54,8 +54,13 @@
 
 /* Begin PBXFileReference section */
 		7C0A5AC52D8F711D00A52426 /* UDPCommunication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPCommunication.swift; sourceTree = "<group>"; };
+<<<<<<< Updated upstream
 		7CF8AA532D8F78040033F7A9 /* Ice_Gun.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = Ice_Gun.usdz; sourceTree = "<group>"; };
 		7CF8AA552D8F98D80033F7A9 /* RAY_GUN.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = RAY_GUN.usdz; sourceTree = "<group>"; };
+=======
+		7CF8AA532D8F78040033F7A9 /* Ice_Gun.usdz */ = {isa = PBXFileReference; lastKnownFileType = file; path = Ice_Gun.usdz; sourceTree = "<group>"; };
+		7CF8AA552D8F98D80033F7A9 /* RAY_GUN.usdz */ = {isa = PBXFileReference; lastKnownFileType = file; path = RAY_GUN.usdz; sourceTree = "<group>"; };
+>>>>>>> Stashed changes
 		80417BBF2D8F47E50086B127 /* InitialViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialViewController.swift; sourceTree = "<group>"; };
 		80417BC42D8F48FC0086B127 /* StandardButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StandardButton.swift; sourceTree = "<group>"; };
 		80417BC72D8F491E0086B127 /* LabelExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabelExtensions.swift; sourceTree = "<group>"; };
