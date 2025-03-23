@@ -19,12 +19,14 @@
             </array>
         </dict>
     </dict>
+    
     <key>NSLocalNetworkUsageDescription</key>
-    <string>This app needs access to other devices on your local network for multiplayer communication.</string>
+    <string>This app uses the local network to discover and connect with nearby devices.</string>
     <key>NSBonjourServices</key>
     <array>
-        <string>_battle._udp.</string>
+        <string>_chat-service._tcp</string>
     </array>
+
 </dict>
 </plist>
 

@@ -9,6 +9,7 @@ import UIKit
 import AVFoundation
 import Vision
 import Network
+import MultipeerConnectivity
 
 class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
     
@@ -55,26 +56,13 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
     var healthBarView: UIView!
     var healthBarWidthConstraint: NSLayoutConstraint!
     
+    private var multipeerService: MultipeerService!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        triggerLocalNetworkPrompt()
-        udp = UDPCommunication(receivePort: 9999)
-        
-        // Set up callback for hit messages.
-        udp?.onHitReceived = { [weak self] damage in
-            guard let self = self else { return }
-            self.hp -= damage
-            DispatchQueue.main.async {
-                self.updateHealthBar()
-            }
-        }
-        
-        if let ip = udp?.localIPAddress {
-            print("📱 My IP address: \(ip)")
-        } else {
-            print("⚠️ No IP address found")
-        }
+        multipeerService = MultipeerService()
+        multipeerService.delegate = self
         
         // Set up audio session for playback.
         do {
@@ -394,6 +382,8 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     func shoot() {
+        multipeerService.send(message: "Hey friend 👋")
+        
         if isReloading { return }
         if bulletCount > 0 {
             bulletCount -= 1
@@ -592,5 +582,19 @@ extension BattleViewController: GunSelectorDelegate {
             self.isReloading = false
             self.updateBulletCountLabel("\(self.bulletCount)")
         }
+    }
+}
+
+extension BattleViewController: MultipeerServiceDelegate {
+    func received(message: String, from peerID: MCPeerID) {
+        print("Message from \(peerID.displayName): \(message)")
+    }
+
+    func peerDidConnect(_ peerID: MCPeerID) {
+        print("Connected to: \(peerID.displayName)")
+    }
+
+    func peerDidDisconnect(_ peerID: MCPeerID) {
+        print("Disconnected from: \(peerID.displayName)")
     }
 }

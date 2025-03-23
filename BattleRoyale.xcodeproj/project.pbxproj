@@ -25,6 +25,7 @@
 		80417BE22D8F720B0086B127 /* hitmarker.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 80417BE12D8F720B0086B127 /* hitmarker.mp3 */; };
 		80417BEE2D8F99580086B127 /* damage.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 80417BED2D8F99580086B127 /* damage.mp3 */; };
 		80417BF02D8F996E0086B127 /* miss.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 80417BEF2D8F996E0086B127 /* miss.mp3 */; };
+		80417BF42D8FA8B30086B127 /* MultipeerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80417BF32D8FA8B30086B127 /* MultipeerService.swift */; };
 		8076502E2D8F45D10067437E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8076502D2D8F45D10067437E /* AppDelegate.swift */; };
 		807650302D8F45D10067437E /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8076502F2D8F45D10067437E /* SceneDelegate.swift */; };
 		807650372D8F45D20067437E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 807650362D8F45D20067437E /* Assets.xcassets */; };
@@ -53,8 +54,8 @@
 
 /* Begin PBXFileReference section */
 		7C0A5AC52D8F711D00A52426 /* UDPCommunication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPCommunication.swift; sourceTree = "<group>"; };
-		7CF8AA532D8F78040033F7A9 /* Ice_Gun.usdz */ = {isa = PBXFileReference; lastKnownFileType = file; path = Ice_Gun.usdz; sourceTree = "<group>"; };
-		7CF8AA552D8F98D80033F7A9 /* RAY_GUN.usdz */ = {isa = PBXFileReference; lastKnownFileType = file; path = RAY_GUN.usdz; sourceTree = "<group>"; };
+		7CF8AA532D8F78040033F7A9 /* Ice_Gun.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = Ice_Gun.usdz; sourceTree = "<group>"; };
+		7CF8AA552D8F98D80033F7A9 /* RAY_GUN.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = RAY_GUN.usdz; sourceTree = "<group>"; };
 		80417BBF2D8F47E50086B127 /* InitialViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialViewController.swift; sourceTree = "<group>"; };
 		80417BC42D8F48FC0086B127 /* StandardButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StandardButton.swift; sourceTree = "<group>"; };
 		80417BC72D8F491E0086B127 /* LabelExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabelExtensions.swift; sourceTree = "<group>"; };
@@ -70,6 +71,7 @@
 		80417BE12D8F720B0086B127 /* hitmarker.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = hitmarker.mp3; sourceTree = "<group>"; };
 		80417BED2D8F99580086B127 /* damage.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = damage.mp3; sourceTree = "<group>"; };
 		80417BEF2D8F996E0086B127 /* miss.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = miss.mp3; sourceTree = "<group>"; };
+		80417BF32D8FA8B30086B127 /* MultipeerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultipeerService.swift; sourceTree = "<group>"; };
 		8076502A2D8F45D10067437E /* BattleRoyale.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BattleRoyale.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8076502D2D8F45D10067437E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		8076502F2D8F45D10067437E /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -173,6 +175,7 @@
 				80417BCC2D8F49A40086B127 /* NavigationService.swift */,
 				80417BDD2D8F5BB40086B127 /* GunService.swift */,
 				7C0A5AC52D8F711D00A52426 /* UDPCommunication.swift */,
+				80417BF32D8FA8B30086B127 /* MultipeerService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -399,6 +402,7 @@
 				80417BDC2D8F5B2D0086B127 /* GunTableViewCell.swift in Sources */,
 				80417BD12D8F55FA0086B127 /* ViewExtensions.swift in Sources */,
 				80417BC02D8F47E50086B127 /* InitialViewController.swift in Sources */,
+				80417BF42D8FA8B30086B127 /* MultipeerService.swift in Sources */,
 				80417BDA2D8F5B1C0086B127 /* GunsTableView.swift in Sources */,
 				80417BD62D8F5AD60086B127 /* Guns.swift in Sources */,
 				8076502E2D8F45D10067437E /* AppDelegate.swift in Sources */,
