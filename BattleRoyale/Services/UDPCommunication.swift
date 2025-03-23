@@ -15,8 +15,10 @@ class UDPCommunication: NSObject, ObservableObject {
 
     @Published var lastReceivedMessage: String = ""
     @Published var connectionState: String = "Not Connected"
+    @Published var discoveredPeers: [String] = [] // Track discovered peer names
 
     var onHitReceived: ((Double) -> Void)?
+    var onPeerConfigured: ((String, UInt16) -> Void)? // Callback for when peer is configured
 
     init(receivePort: UInt16) {
         self.receivePort = NWEndpoint.Port(rawValue: receivePort)!
@@ -39,6 +41,11 @@ class UDPCommunication: NSObject, ObservableObject {
             case .ready:
                 self?.connectionState = "Connected to \(ip):\(port)"
                 print("✅ Connection ready to \(ip):\(port)")
+                DispatchQueue.main.async {
+                    self?.onPeerConfigured?(ip, port) // Notify when peer is configured
+                    // Send a test ping to verify the connection is working
+                    self?.sendPing()
+                }
             case .failed(let error):
                 self?.connectionState = "Connection failed: \(error)"
                 print("❌ Connection failed: \(error)")
@@ -57,6 +64,9 @@ class UDPCommunication: NSObject, ObservableObject {
     func send(message: String) {
         guard let connection = connection else {
             print("❗️Connection not configured — peer may not be discovered yet.")
+            print("📌 Debug: peerHost = \(peerHost?.debugDescription ?? "nil"), peerPort = \(peerPort?.debugDescription ?? "nil")")
+            print("📌 Debug: discovered services = \(discoveredServices.map { $0.name })")
+            printDiscoveredServices()
             return
         }
 
@@ -71,6 +81,20 @@ class UDPCommunication: NSObject, ObservableObject {
             }))
         } else {
             print("⚠️ Connection not ready. Current state: \(connection.state)")
+        }
+    }
+
+    // Add a ping function to test connectivity
+    func sendPing() {
+        print("🏓 Sending ping to test connection...")
+        send(message: "ping")
+    }
+
+    // Add a function to print discovered services
+    func printDiscoveredServices() {
+        print("🔍 Currently discovered services: \(discoveredServices.map { $0.name })")
+        if discoveredServices.isEmpty {
+            print("⚠️ No services discovered yet. Make sure both devices are on the same network.")
         }
     }
 
@@ -116,6 +140,8 @@ class UDPCommunication: NSObject, ObservableObject {
                 DispatchQueue.main.async {
                     self?.lastReceivedMessage = message
                 }
+                
+                // Handle specific message types
                 if message.hasPrefix("hit:") {
                     let damageString = message.replacingOccurrences(of: "hit:", with: "").trimmingCharacters(in: .whitespaces)
                     if let damage = Double(damageString) {
@@ -123,6 +149,12 @@ class UDPCommunication: NSObject, ObservableObject {
                             self?.onHitReceived?(damage)
                         }
                     }
+                } else if message == "ping" {
+                    // Respond to ping with pong
+                    print("🏓 Received ping, sending pong...")
+                    self?.send(message: "pong")
+                } else if message == "pong" {
+                    print("✅ Received pong - connection is working properly!")
                 }
             } else if data != nil {
                 print("📥 Received data but couldn't decode as UTF-8")
@@ -139,6 +171,19 @@ class UDPCommunication: NSObject, ObservableObject {
     func sendWhenReady(message: String, timeout: TimeInterval = 5.0) {
         guard let connection = connection else {
             print("❗️Connection not configured")
+            print("📌 Debug: Attempting to configure connection first...")
+            // If we have discovered services but connection isn't configured, try to resolve them again
+            if !discoveredServices.isEmpty {
+                for service in discoveredServices {
+                    if service.delegate == nil {
+                        service.delegate = self
+                        service.resolve(withTimeout: 5)
+                    }
+                }
+                print("⏳ Waiting for service resolution...")
+            } else {
+                print("⚠️ No services discovered yet. Make sure both devices are on the same network.")
+            }
             return
         }
 
@@ -159,6 +204,7 @@ class UDPCommunication: NSObject, ObservableObject {
                 }
             } else {
                 print("⏱️ Timeout waiting for connection to be ready")
+                print("📌 Debug: Connection state at timeout: \(String(describing: self.connection?.state))")
             }
         }
 
@@ -196,6 +242,20 @@ class UDPCommunication: NSObject, ObservableObject {
 
         return address
     }
+    
+    // Function to check network connectivity
+    func checkNetworkStatus() {
+        print("🔍 Network Status Check:")
+        if let localIP = localIPAddress {
+            print("✅ Local IP Address: \(localIP)")
+        } else {
+            print("❌ Could not determine local IP address")
+        }
+        
+        print("🔍 Discovered services: \(discoveredServices.map { $0.name })")
+        print("🔍 Listener state: \(String(describing: listener?.state))")
+        print("🔍 Connection state: \(String(describing: connection?.state))")
+    }
 }
 
 extension UDPCommunication: NetServiceBrowserDelegate, NetServiceDelegate {
@@ -204,6 +264,15 @@ extension UDPCommunication: NetServiceBrowserDelegate, NetServiceDelegate {
         netService?.delegate = self
         netService?.publish()
         print("📡 Published service as '\(name)' on port \(receivePort)")
+        
+        // Add a delay and check if the service was published successfully
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
+            if self?.netService?.port == -1 {
+                print("⚠️ Service may not have published correctly. Check Info.plist permissions.")
+            } else {
+                print("✅ Service published successfully on port: \(self?.netService?.port ?? -1)")
+            }
+        }
     }
 
     func startBrowsing() {
@@ -221,8 +290,30 @@ extension UDPCommunication: NetServiceBrowserDelegate, NetServiceDelegate {
 
         print("🔎 Found peer service: \(service.name)")
         discoveredServices.append(service)
+        DispatchQueue.main.async {
+            self.discoveredPeers = self.discoveredServices.map { $0.name }
+        }
         service.delegate = self
         service.resolve(withTimeout: 5)
+    }
+    
+    func netServiceBrowser(_ browser: NetServiceBrowser, didRemove service: NetService, moreComing: Bool) {
+        print("🚫 Service removed: \(service.name)")
+        if let index = discoveredServices.firstIndex(where: { $0.name == service.name }) {
+            discoveredServices.remove(at: index)
+            
+            DispatchQueue.main.async {
+                self.discoveredPeers = self.discoveredServices.map { $0.name }
+            }
+        }
+    }
+    
+    func netServiceBrowserDidStopSearch(_ browser: NetServiceBrowser) {
+        print("🛑 Service browser stopped searching")
+    }
+    
+    func netServiceBrowser(_ browser: NetServiceBrowser, didNotSearch errorDict: [String : NSNumber]) {
+        print("❌ Service browser failed to search: \(errorDict)")
     }
 
     func netServiceDidResolveAddress(_ service: NetService) {
@@ -241,5 +332,17 @@ extension UDPCommunication: NetServiceBrowserDelegate, NetServiceDelegate {
 
             self.configurePeer(ip: ipAddress, port: UInt16(port))
         }
+    }
+    
+    func netService(_ sender: NetService, didNotResolve errorDict: [String : NSNumber]) {
+        print("❌ Failed to resolve service: \(sender.name), error: \(errorDict)")
+    }
+    
+    func netServiceDidPublish(_ sender: NetService) {
+        print("✅ Successfully published service: \(sender.name) on port \(sender.port)")
+    }
+    
+    func netService(_ sender: NetService, didNotPublish errorDict: [String : NSNumber]) {
+        print("❌ Failed to publish service: \(sender.name), error: \(errorDict)")
     }
 }
