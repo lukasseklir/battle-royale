@@ -1,9 +1,3 @@
-//
-//  UDPCommunication.swift
-//  BattleRoyale
-//
-//  Created by Alain Zhiyanov on 3/22/25.
-//
 import Foundation
 import Network
 import UIKit
@@ -33,6 +27,8 @@ class UDPCommunication: NSObject, ObservableObject {
     }
 
     func configurePeer(ip: String, port: UInt16) {
+        print("🧩 Configuring peer → \(ip):\(port)")
+
         peerHost = NWEndpoint.Host(ip)
         peerPort = NWEndpoint.Port(rawValue: port)
 
@@ -60,7 +56,7 @@ class UDPCommunication: NSObject, ObservableObject {
 
     func send(message: String) {
         guard let connection = connection else {
-            print("❗️Connection not configured")
+            print("❗️Connection not configured — peer may not be discovered yet.")
             return
         }
 
@@ -201,6 +197,7 @@ class UDPCommunication: NSObject, ObservableObject {
         return address
     }
 }
+
 extension UDPCommunication: NetServiceBrowserDelegate, NetServiceDelegate {
     func publishService(name: String = UIDevice.current.name) {
         netService = NetService(domain: "local.", type: "_battle._udp.", name: name, port: Int32(receivePort.rawValue))
@@ -217,25 +214,32 @@ extension UDPCommunication: NetServiceBrowserDelegate, NetServiceDelegate {
     }
 
     func netServiceBrowser(_ browser: NetServiceBrowser, didFind service: NetService, moreComing: Bool) {
-        print("🔎 Found service: \(service.name)")
+        if service.name == UIDevice.current.name {
+            print("🚫 Ignored own service: \(service.name)")
+            return
+        }
+
+        print("🔎 Found peer service: \(service.name)")
         discoveredServices.append(service)
         service.delegate = self
         service.resolve(withTimeout: 5)
     }
 
     func netServiceDidResolveAddress(_ service: NetService) {
-        guard let addressData = service.addresses?.first else { return }
+        guard let addressData = service.addresses?.first else {
+            print("❌ Could not resolve address for service: \(service.name)")
+            return
+        }
 
         addressData.withUnsafeBytes { (pointer: UnsafeRawBufferPointer) in
             let sockaddrPointer = pointer.baseAddress!.assumingMemoryBound(to: sockaddr_in.self)
             let ipCString = inet_ntoa(sockaddrPointer.pointee.sin_addr)
             let ipAddress = String(cString: ipCString!)
             let port = Int(UInt16(bigEndian: sockaddrPointer.pointee.sin_port))
+
             print("🌐 Resolved peer → \(ipAddress):\(port)")
 
-            // Auto-configure peer
             self.configurePeer(ip: ipAddress, port: UInt16(port))
         }
     }
 }
-
