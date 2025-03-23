@@ -54,8 +54,7 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
         super.viewDidLoad()
         
         triggerLocalNetworkPrompt()
-        udp = UDPCommunication(receivePort: 8888)
-        udp?.configurePeer(ip: "206.87.217.87", port: 9999)
+        udp = UDPCommunication(receivePort: 9999)
         
         // Set up callback for hit messages.
         udp?.onHitReceived = { [weak self] damage in

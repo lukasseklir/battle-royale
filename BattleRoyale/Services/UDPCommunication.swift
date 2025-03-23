@@ -4,34 +4,40 @@
 //
 //  Created by Alain Zhiyanov on 3/22/25.
 //
-
 import Foundation
 import Network
+import UIKit
 
-class UDPCommunication: ObservableObject {
+class UDPCommunication: NSObject, ObservableObject {
     private var connection: NWConnection?
     private var listener: NWListener?
     private let receivePort: NWEndpoint.Port
     private var peerHost: NWEndpoint.Host?
     private var peerPort: NWEndpoint.Port?
-    
+
+    private var netService: NetService?
+    private var serviceBrowser: NetServiceBrowser?
+    private var discoveredServices: [NetService] = []
+
     @Published var lastReceivedMessage: String = ""
     @Published var connectionState: String = "Not Connected"
-    
-    // New: Closure called when a hit message is received.
+
     var onHitReceived: ((Double) -> Void)?
 
     init(receivePort: UInt16) {
         self.receivePort = NWEndpoint.Port(rawValue: receivePort)!
+        super.init()
         startListener()
+        publishService()
+        startBrowsing()
     }
 
     func configurePeer(ip: String, port: UInt16) {
         peerHost = NWEndpoint.Host(ip)
-        peerPort = NWEndpoint.Port(rawValue: port)!
+        peerPort = NWEndpoint.Port(rawValue: port)
 
         connection = NWConnection(host: peerHost!, port: peerPort!, using: .udp)
-        
+
         connection?.stateUpdateHandler = { [weak self] state in
             switch state {
             case .ready:
@@ -48,7 +54,7 @@ class UDPCommunication: ObservableObject {
                 print("ℹ️ Connection state changed: \(state)")
             }
         }
-        
+
         connection?.start(queue: .main)
     }
 
@@ -57,7 +63,7 @@ class UDPCommunication: ObservableObject {
             print("❗️Connection not configured")
             return
         }
-        
+
         if connection.state == .ready {
             let data = message.data(using: .utf8)!
             connection.send(content: data, completion: .contentProcessed({ error in
@@ -82,7 +88,7 @@ class UDPCommunication: ObservableObject {
                 newConnection.start(queue: .main)
                 self?.receive(on: newConnection)
             }
-            
+
             listener?.stateUpdateHandler = { state in
                 switch state {
                 case .ready:
@@ -114,7 +120,6 @@ class UDPCommunication: ObservableObject {
                 DispatchQueue.main.async {
                     self?.lastReceivedMessage = message
                 }
-                // Check if the message is a hit message.
                 if message.hasPrefix("hit:") {
                     let damageString = message.replacingOccurrences(of: "hit:", with: "").trimmingCharacters(in: .whitespaces)
                     if let damage = Double(damageString) {
@@ -134,21 +139,21 @@ class UDPCommunication: ObservableObject {
             }
         }
     }
-    
+
     func sendWhenReady(message: String, timeout: TimeInterval = 5.0) {
         guard let connection = connection else {
             print("❗️Connection not configured")
             return
         }
-        
+
         if connection.state == .ready {
             send(message: message)
             return
         }
-        
+
         print("⏳ Waiting for connection to be ready...")
         let deadline = DispatchTime.now() + timeout
-        
+
         func checkAndSend() {
             if connection.state == .ready {
                 send(message: message)
@@ -160,7 +165,7 @@ class UDPCommunication: ObservableObject {
                 print("⏱️ Timeout waiting for connection to be ready")
             }
         }
-        
+
         checkAndSend()
     }
 
@@ -196,3 +201,41 @@ class UDPCommunication: ObservableObject {
         return address
     }
 }
+extension UDPCommunication: NetServiceBrowserDelegate, NetServiceDelegate {
+    func publishService(name: String = UIDevice.current.name) {
+        netService = NetService(domain: "local.", type: "_battle._udp.", name: name, port: Int32(receivePort.rawValue))
+        netService?.delegate = self
+        netService?.publish()
+        print("📡 Published service as '\(name)' on port \(receivePort)")
+    }
+
+    func startBrowsing() {
+        serviceBrowser = NetServiceBrowser()
+        serviceBrowser?.delegate = self
+        serviceBrowser?.searchForServices(ofType: "_battle._udp.", inDomain: "local.")
+        print("🔍 Started browsing for peers...")
+    }
+
+    func netServiceBrowser(_ browser: NetServiceBrowser, didFind service: NetService, moreComing: Bool) {
+        print("🔎 Found service: \(service.name)")
+        discoveredServices.append(service)
+        service.delegate = self
+        service.resolve(withTimeout: 5)
+    }
+
+    func netServiceDidResolveAddress(_ service: NetService) {
+        guard let addressData = service.addresses?.first else { return }
+
+        addressData.withUnsafeBytes { (pointer: UnsafeRawBufferPointer) in
+            let sockaddrPointer = pointer.baseAddress!.assumingMemoryBound(to: sockaddr_in.self)
+            let ipCString = inet_ntoa(sockaddrPointer.pointee.sin_addr)
+            let ipAddress = String(cString: ipCString!)
+            let port = Int(UInt16(bigEndian: sockaddrPointer.pointee.sin_port))
+            print("🌐 Resolved peer → \(ipAddress):\(port)")
+
+            // Auto-configure peer
+            self.configurePeer(ip: ipAddress, port: UInt16(port))
+        }
+    }
+}
+
