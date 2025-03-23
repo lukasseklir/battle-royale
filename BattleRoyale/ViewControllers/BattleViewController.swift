@@ -44,11 +44,16 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
     var nightVisionSwitch: UISwitch!
     
     var hitmarkerPlayer: AVAudioPlayer?
+    var missPlayer: AVAudioPlayer?         // Added for miss sound
+    var damagePlayer: AVAudioPlayer?       // Added for damage sound
+    
     var udp: UDPCommunication?
     
-    // New: player's health and label.
+    // Player's health and health bar.
     var hp: Double = 1000  // Player starts with 1000 hp.
-    let hpLabel = UILabel.createLabel(fontSize: 18, color: .white, thickness: .bold, alignment: .center)
+    var healthBarContainer: UIView!
+    var healthBarView: UIView!
+    var healthBarWidthConstraint: NSLayoutConstraint!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -61,7 +66,7 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
             guard let self = self else { return }
             self.hp -= damage
             DispatchQueue.main.async {
-                self.updateHPLabel()
+                self.updateHealthBar()
             }
         }
         
@@ -88,6 +93,26 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
             }
         }
         
+        // Load miss sound
+        if let missUrl = Bundle.main.url(forResource: "miss", withExtension: "mp3") {
+            do {
+                missPlayer = try AVAudioPlayer(contentsOf: missUrl)
+                missPlayer?.prepareToPlay()
+            } catch {
+                print("Error loading miss sound: \(error)")
+            }
+        }
+
+        // Load damage sound
+        if let damageUrl = Bundle.main.url(forResource: "damage", withExtension: "mp3") {
+            do {
+                damagePlayer = try AVAudioPlayer(contentsOf: damageUrl)
+                damagePlayer?.prepareToPlay()
+            } catch {
+                print("Error loading damage sound: \(error)")
+            }
+        }
+        
         setupCamera()
         
         nightVisionImageView = UIImageView(frame: view.bounds)
@@ -99,7 +124,7 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
         setupBulletCountLabel()
         setupNightVisionToggle()
         setupGunSelectorLabel()
-        setupHPLabel()  // Setup health label.
+        setupHealthBar()  // Setup the health bar.
         
         // Set a random gun on first launch.
         if let randomGun = GunService.shared.guns.randomElement() {
@@ -264,18 +289,39 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
         ])
     }
     
-    func setupHPLabel() {
-        hpLabel.translatesAutoresizingMaskIntoConstraints = false
-        hpLabel.text = "HP: \(Int(hp))"
-        hpLabel.backgroundColor = UIColor.black.withAlphaComponent(0.5)
-        hpLabel.layer.cornerRadius = 10
-        hpLabel.clipsToBounds = true
-        view.addSubview(hpLabel)
+    func setupHealthBar() {
+        // Create container for the health bar.
+        healthBarContainer = UIView()
+        healthBarContainer.translatesAutoresizingMaskIntoConstraints = false
+        healthBarContainer.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        healthBarContainer.layer.cornerRadius = 5
+        view.addSubview(healthBarContainer)
+        
+        // Create the red health bar view.
+        healthBarView = UIView()
+        healthBarView.translatesAutoresizingMaskIntoConstraints = false
+        healthBarView.backgroundColor = .red
+        healthBarView.layer.cornerRadius = 5
+        healthBarContainer.addSubview(healthBarView)
+        
+        // Set fixed width for health bar container.
+        let maxWidth: CGFloat = 300
         
         NSLayoutConstraint.activate([
-            hpLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-            hpLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            hpLabel.heightAnchor.constraint(equalToConstant: 30)
+            // Position container at top center.
+            healthBarContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            healthBarContainer.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            healthBarContainer.widthAnchor.constraint(equalToConstant: maxWidth),
+            healthBarContainer.heightAnchor.constraint(equalToConstant: 20)
+        ])
+        
+        // Health bar view constraints: align to container's left, top, bottom with a width we will update.
+        healthBarWidthConstraint = healthBarView.widthAnchor.constraint(equalToConstant: maxWidth)
+        NSLayoutConstraint.activate([
+            healthBarView.leadingAnchor.constraint(equalTo: healthBarContainer.leadingAnchor),
+            healthBarView.topAnchor.constraint(equalTo: healthBarContainer.topAnchor),
+            healthBarView.bottomAnchor.constraint(equalTo: healthBarContainer.bottomAnchor),
+            healthBarWidthConstraint
         ])
     }
     
@@ -283,8 +329,37 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
         bulletCountLabel.text = "Ammo: \(text)"
     }
     
-    func updateHPLabel() {
-        hpLabel.text = "HP: \(Int(hp))"
+    func updateHealthBar() {
+        let maxWidth: CGFloat = 300
+        let clampedHP = max(hp, 0)
+        let newWidth = maxWidth * CGFloat(clampedHP) / 1000.0
+        healthBarWidthConstraint.constant = newWidth
+        view.layoutIfNeeded()
+        
+        damagePlayer?.play()
+        flashRedEffect()
+        
+        if hp <= 0 {
+            showDeathScreen()
+        }
+    }
+
+    func flashRedEffect() {
+        let redOverlay = UIView(frame: view.bounds)
+        redOverlay.backgroundColor = UIColor.red
+        redOverlay.alpha = 0.0
+        view.addSubview(redOverlay)
+        
+        // Animate red flash.
+        UIView.animate(withDuration: 0.1, animations: {
+            redOverlay.alpha = 0.5
+        }) { _ in
+            UIView.animate(withDuration: 0.1, animations: {
+                redOverlay.alpha = 0.0
+            }) { _ in
+                redOverlay.removeFromSuperview()
+            }
+        }
     }
     
     @objc func nightVisionSwitchChanged(_ sender: UISwitch) {
@@ -335,6 +410,8 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
                 animateHitFeedback()
                 hitmarkerPlayer?.play()
                 sendHit()
+            } else {
+                missPlayer?.play()
             }
             
             if bulletCount == 0 {
@@ -376,6 +453,40 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
             print("NWBrowser state: \(state)")
         }
         browser.start(queue: .main)
+    }
+    
+    func showDeathScreen() {
+        // Create a full-screen red overlay.
+        let deathView = UIView()
+        deathView.translatesAutoresizingMaskIntoConstraints = false
+        deathView.backgroundColor = UIColor.red
+        view.addSubview(deathView)
+        
+        NSLayoutConstraint.activate([
+            deathView.topAnchor.constraint(equalTo: view.topAnchor),
+            deathView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            deathView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            deathView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+        
+        // Create the End Game button.
+        let endGameButton = UIButton(type: .system)
+        endGameButton.translatesAutoresizingMaskIntoConstraints = false
+        endGameButton.setTitle("End Game", for: .normal)
+        endGameButton.setTitleColor(.white, for: .normal)
+        endGameButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 24)
+        deathView.addSubview(endGameButton)
+        
+        NSLayoutConstraint.activate([
+            endGameButton.centerXAnchor.constraint(equalTo: deathView.centerXAnchor),
+            endGameButton.centerYAnchor.constraint(equalTo: deathView.centerYAnchor)
+        ])
+        
+        endGameButton.addTarget(self, action: #selector(endGameButtonTapped), for: .touchUpInside)
+    }
+    
+    @objc func endGameButtonTapped() {
+        dismiss(animated: true, completion: nil)
     }
 }
 
