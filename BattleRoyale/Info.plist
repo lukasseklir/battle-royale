@@ -23,7 +23,8 @@
     <string>This app needs access to other devices on your local network for multiplayer communication.</string>
     <key>NSBonjourServices</key>
     <array>
-        <string>_localservice._udp</string>
+        <string>_battle._udp.</string>
     </array>
 </dict>
 </plist>
+
