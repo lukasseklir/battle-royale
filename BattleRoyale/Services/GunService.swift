@@ -19,7 +19,8 @@ class GunService {
             reloadTime: 2.5,
             magazineSize: 7,
             isSemiAuto: true,
-            damagePerShot: 45.0
+            damagePerShot: 45.0,
+            fileName: "RAY_GUN.usdz"
         ),
         
         Gun(
@@ -29,7 +30,8 @@ class GunService {
             reloadTime: 3.0,
             magazineSize: 30,
             isSemiAuto: false,
-            damagePerShot: 32.0
+            damagePerShot: 32.0,
+            fileName: "Ice_Gun.usdz"
         ),
         
         Gun(
@@ -39,7 +41,8 @@ class GunService {
             reloadTime: 4.5,
             magazineSize: 8,
             isSemiAuto: false,
-            damagePerShot: 75.0
+            damagePerShot: 75.0,
+            fileName: "Ice_Gun.usdz"
         ),
         
         Gun(
@@ -49,7 +52,8 @@ class GunService {
             reloadTime: 4.0,
             magazineSize: 5,
             isSemiAuto: true,
-            damagePerShot: 95.0
+            damagePerShot: 95.0,
+            fileName: "Ice_Gun.usdz"
         ),
         
         Gun(
@@ -59,7 +63,8 @@ class GunService {
             reloadTime: 1.8,
             magazineSize: 25,
             isSemiAuto: false,
-            damagePerShot: 18.0
+            damagePerShot: 18.0,
+            fileName: "Ice_Gun.usdz"
         ),
         
         Gun(
@@ -69,7 +74,8 @@ class GunService {
             reloadTime: 3.2,
             magazineSize: 6,
             isSemiAuto: true,
-            damagePerShot: 60.0
+            damagePerShot: 60.0,
+            fileName: "Ice_Gun.usdz"
         )
     ]
 }

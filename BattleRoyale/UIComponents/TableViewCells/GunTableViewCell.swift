@@ -6,6 +6,9 @@
 //
 
 import UIKit
+import SwiftUI
+import SceneKit
+import RealityKit
 
 class GunTableViewCell: UITableViewCell {
     
@@ -16,6 +19,7 @@ class GunTableViewCell: UITableViewCell {
     let magazineSizeLabel = UILabel.createLabel(fontSize: 14, color: .systemGray, thickness: .semibold, numLines: 0, alignment: .left)
     let isSemiAutoLabel = UILabel.createLabel(fontSize: 14, color: .systemGray, thickness: .semibold, numLines: 0, alignment: .left)
     let damagePerShotLabel = UILabel.createLabel(fontSize: 14, color: .systemGray, thickness: .semibold, numLines: 0, alignment: .left)
+    let gunModelView = UIView(frame: CGRect(x: 50, y: 100, width: 300, height: 300))
 
     var gun: Gun? {
         didSet {
@@ -56,6 +60,7 @@ class GunTableViewCell: UITableViewCell {
         gunDescStackView.addArrangedSubview(damagePerShotLabel)
         
         gunStackView.addArrangedSubview(gunDescStackView)
+        gunStackView.addArrangedSubview(gunModelView)
     }
     
     func updateView() {
@@ -67,6 +72,42 @@ class GunTableViewCell: UITableViewCell {
         magazineSizeLabel.text = "Mag Size: \(gun.magazineSize)"
         isSemiAutoLabel.text = gun.isSemiAuto ? "Semi-Auto" : "Full-Auto"
         damagePerShotLabel.text = "Damage: \(gun.damagePerShot)"
+        
+        // Create a SceneView to display the 3D model
+        let sceneView = SCNView()
+        sceneView.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Add sceneView to gunModelView and set constraints
+        gunModelView.addSubview(sceneView)
+        NSLayoutConstraint.activate([
+            sceneView.topAnchor.constraint(equalTo: gunModelView.topAnchor),
+            sceneView.bottomAnchor.constraint(equalTo: gunModelView.bottomAnchor),
+            sceneView.leadingAnchor.constraint(equalTo: gunModelView.leadingAnchor),
+            sceneView.trailingAnchor.constraint(equalTo: gunModelView.trailingAnchor)
+        ])
+        
+        // Set width constraint if needed
+        gunModelView.widthAnchor.constraint(equalToConstant: 300).isActive = true
+        
+        // Adjust gesture recognizers to cancel touches propagation
+        if let gestures = sceneView.gestureRecognizers {
+            for gesture in gestures {
+                gesture.cancelsTouchesInView = true
+            }
+        }
+        
+        let modelScene = SCNScene(named: gun.fileName)
+        let lightNode = SCNNode()
+        lightNode.light = SCNLight()
+        lightNode.light?.type = .omni
+        lightNode.position = SCNVector3(x: 0, y: 10, z: 35)
+        modelScene?.rootNode.addChildNode(lightNode)
+        
+        // Set sceneView properties
+        sceneView.autoenablesDefaultLighting = true
+        sceneView.allowsCameraControl = true
+        sceneView.backgroundColor = .clear
+        sceneView.scene = modelScene
     }
 }
 

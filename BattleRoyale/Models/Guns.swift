@@ -17,7 +17,9 @@ class Gun {
     var isSemiAuto: Bool
     var damagePerShot: Double
     
-    init(name: String, description: String, image: UIImage, reloadTime: Double, magazineSize: Int, isSemiAuto: Bool, damagePerShot: Double) {
+    var fileName: String
+    
+    init(name: String, description: String, image: UIImage, reloadTime: Double, magazineSize: Int, isSemiAuto: Bool, damagePerShot: Double, fileName: String) {
         self.name = name
         self.description = description
         self.image = image
@@ -25,6 +27,7 @@ class Gun {
         self.magazineSize = magazineSize
         self.isSemiAuto = isSemiAuto
         self.damagePerShot = damagePerShot
+        self.fileName = fileName
     }
 }
 

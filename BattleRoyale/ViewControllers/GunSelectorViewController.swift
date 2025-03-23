@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import SwiftUI
+import RealityKit
 
 // New protocol to notify gun selection changes
 protocol GunSelectorDelegate: AnyObject {
