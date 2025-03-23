@@ -15,7 +15,7 @@ protocol MultipeerServiceDelegate: AnyObject {
 }
 
 final class MultipeerService: NSObject {
-    private let serviceType = "chat-service" // Max 15 characters
+    private let serviceType = "chat-service"
     private let myPeerID = MCPeerID(displayName: UIDevice.current.name)
     private let session: MCSession
     private let advertiser: MCNearbyServiceAdvertiser

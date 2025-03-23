@@ -382,8 +382,6 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     func shoot() {
-        multipeerService.send(message: "Hey friend 👋")
-        
         if isReloading { return }
         if bulletCount > 0 {
             bulletCount -= 1
@@ -421,7 +419,7 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
     
     func sendHit() {
         guard let selectedGun = selectedGun else { return }
-        self.udp?.sendWhenReady(message: "hit: \(selectedGun.damagePerShot)")
+        multipeerService.send(message: "hit: \(selectedGun.damagePerShot)")
     }
     
     func animateHitFeedback() {
@@ -588,6 +586,18 @@ extension BattleViewController: GunSelectorDelegate {
 extension BattleViewController: MultipeerServiceDelegate {
     func received(message: String, from peerID: MCPeerID) {
         print("Message from \(peerID.displayName): \(message)")
+        // Check if the message is a hit message and parse damage value.
+        if message.hasPrefix("hit:") {
+            let components = message.components(separatedBy: "hit:")
+            if components.count > 1,
+               let damageValue = Double(components[1].trimmingCharacters(in: .whitespaces)) {
+                DispatchQueue.main.async { [weak self] in
+                    // Reduce health by the received damage value.
+                    self?.hp -= damageValue
+                    self?.updateHealthBar()
+                }
+            }
+        }
     }
 
     func peerDidConnect(_ peerID: MCPeerID) {
