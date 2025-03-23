@@ -74,9 +74,10 @@ class GunTableViewCell: UITableViewCell {
         damagePerShotLabel.text = "Damage: \(gun.damagePerShot)"
         
         // Create a SceneView to display the 3D model
-        // let sceneView = SCNView(frame: gunModelView.bounds)
         let sceneView = SCNView()
         sceneView.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Add sceneView to gunModelView and set constraints
         gunModelView.addSubview(sceneView)
         NSLayoutConstraint.activate([
             sceneView.topAnchor.constraint(equalTo: gunModelView.topAnchor),
@@ -84,8 +85,16 @@ class GunTableViewCell: UITableViewCell {
             sceneView.leadingAnchor.constraint(equalTo: gunModelView.leadingAnchor),
             sceneView.trailingAnchor.constraint(equalTo: gunModelView.trailingAnchor)
         ])
-        gunModelView.addSubview(sceneView)
+        
+        // Set width constraint if needed
         gunModelView.widthAnchor.constraint(equalToConstant: 300).isActive = true
+        
+        // Adjust gesture recognizers to cancel touches propagation
+        if let gestures = sceneView.gestureRecognizers {
+            for gesture in gestures {
+                gesture.cancelsTouchesInView = true
+            }
+        }
         
         let modelScene = SCNScene(named: gun.fileName)
         let lightNode = SCNNode()
@@ -93,10 +102,11 @@ class GunTableViewCell: UITableViewCell {
         lightNode.light?.type = .omni
         lightNode.position = SCNVector3(x: 0, y: 10, z: 35)
         modelScene?.rootNode.addChildNode(lightNode)
-        // Set properties (optional)
+        
+        // Set sceneView properties
         sceneView.autoenablesDefaultLighting = true
-        sceneView.allowsCameraControl = true // Optional, for user interaction
-        sceneView.backgroundColor = .clear // Ensure transparency
+        sceneView.allowsCameraControl = true
+        sceneView.backgroundColor = .clear
         sceneView.scene = modelScene
     }
 }
