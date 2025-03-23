@@ -251,10 +251,6 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
             gunSelectorLabel.leadingAnchor.constraint(equalTo: gunSelectorContainerView.leadingAnchor, constant: 5),
             gunSelectorLabel.trailingAnchor.constraint(equalTo: gunSelectorContainerView.trailingAnchor, constant: -5)
         ])
-        
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(gunSelectorTapped))
-        gunSelectorContainerView.addGestureRecognizer(tapGesture)
-        gunSelectorContainerView.isUserInteractionEnabled = true
     }
     
     func setupNightVisionToggle() {
@@ -353,13 +349,6 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
     @objc func nightVisionSwitchChanged(_ sender: UISwitch) {
         nightVisionEnabled = sender.isOn
         nightVisionImageView.isHidden = !nightVisionEnabled
-    }
-    
-    @objc func gunSelectorTapped() {
-        print("gun selector tapped")
-        let gunSelectorVC = GunSelectorViewController()
-        gunSelectorVC.delegate = self
-        present(gunSelectorVC, animated: true, completion: nil)
     }
     
     // Gesture handler for semi and full auto firing.

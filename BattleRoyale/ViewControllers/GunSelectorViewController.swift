@@ -9,7 +9,6 @@ import UIKit
 import SwiftUI
 import RealityKit
 
-// New protocol to notify gun selection changes
 protocol GunSelectorDelegate: AnyObject {
     func didSelectGun(_ gun: Gun)
 }
@@ -17,7 +16,6 @@ protocol GunSelectorDelegate: AnyObject {
 class GunSelectorViewController: UIViewController {
     
     let gunsTableView = GunsTableView()
-    // Delegate to send selected gun back to BattleViewController
     weak var delegate: GunSelectorDelegate?
 
     override func viewDidLoad() {
@@ -61,8 +59,9 @@ class GunSelectorViewController: UIViewController {
 
 extension GunSelectorViewController: GunsTableViewDelegate {
     func didSelectGun(_ gun: Gun) {
-        // Notify the delegate of the new selection
-        delegate?.didSelectGun(gun)
-        dismiss(animated: true, completion: nil)
+        let battleVC = BattleViewController()
+        battleVC.selectedGun = gun
+        battleVC.modalPresentationStyle = .fullScreen
+        self.present(battleVC, animated: true, completion: nil)
     }
 }

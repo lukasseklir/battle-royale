@@ -53,6 +53,6 @@ class InitialViewController: UIViewController {
     
     @objc func getStartedButtonTapped(_ sender: UITapGestureRecognizer) {
         let navigationService = NavigationService()
-        navigationService.presentBattle(from: self)
+        navigationService.presentGunSelector(from: self)
     }
 }
