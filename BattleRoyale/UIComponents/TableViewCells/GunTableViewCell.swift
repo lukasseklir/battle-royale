@@ -73,6 +73,8 @@ class GunTableViewCell: UITableViewCell {
         isSemiAutoLabel.text = gun.isSemiAuto ? "Semi-Auto" : "Full-Auto"
         damagePerShotLabel.text = "Damage: \(gun.damagePerShot)"
         
+        gunModelView.subviews.forEach { $0.removeFromSuperview() }
+        
         // Create a SceneView to display the 3D model
         let sceneView = SCNView()
         sceneView.translatesAutoresizingMaskIntoConstraints = false
@@ -88,6 +90,7 @@ class GunTableViewCell: UITableViewCell {
         
         // Set width constraint if needed
         gunModelView.widthAnchor.constraint(equalToConstant: 300).isActive = true
+
         
         // Adjust gesture recognizers to cancel touches propagation
         if let gestures = sceneView.gestureRecognizers {
@@ -96,18 +99,29 @@ class GunTableViewCell: UITableViewCell {
             }
         }
         
-        let modelScene = SCNScene(named: gun.fileName)
-        let lightNode = SCNNode()
-        lightNode.light = SCNLight()
-        lightNode.light?.type = .omni
-        lightNode.position = SCNVector3(x: 0, y: 10, z: 35)
-        modelScene?.rootNode.addChildNode(lightNode)
-        
-        // Set sceneView properties
-        sceneView.autoenablesDefaultLighting = true
-        sceneView.allowsCameraControl = true
-        sceneView.backgroundColor = .clear
-        sceneView.scene = modelScene
+        // Load the model scene
+        if let modelScene = SCNScene(named: gun.fileName) {
+            // Add lighting to the scene
+            let lightNode = SCNNode()
+            lightNode.light = SCNLight()
+            lightNode.light?.type = .omni
+            lightNode.position = SCNVector3(x: 0, y: 10, z: 35)
+            modelScene.rootNode.addChildNode(lightNode)
+
+            // Add a rotation action to the model node
+            if let modelNode = modelScene.rootNode.childNodes.first {
+                let rotateAction = SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: CGFloat.pi * 2, z: 0, duration: 5))
+                modelNode.runAction(rotateAction)
+            }
+
+            // Set scene to sceneView
+            sceneView.autoenablesDefaultLighting = true
+            sceneView.allowsCameraControl = true
+            sceneView.backgroundColor = .clear
+            sceneView.scene = modelScene
+        } else {
+            print("Failed to load the scene: \(gun.fileName)")
+        }
     }
 }
 
