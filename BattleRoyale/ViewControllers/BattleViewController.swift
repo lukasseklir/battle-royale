@@ -61,6 +61,10 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        guard let selectedGun = selectedGun else {
+            fatalError("No gun selected")
+        }
+        
         multipeerService = MultipeerService()
         multipeerService.delegate = self
         
@@ -114,13 +118,9 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
         setupGunSelectorLabel()
         setupHealthBar()  // Setup the health bar.
         
-        // Set a random gun on first launch.
-        if let randomGun = GunService.shared.guns.randomElement() {
-            selectedGun = randomGun
-            gunSelectorLabel.text = "\(randomGun.name), \(randomGun.isSemiAuto ? "Semi-Auto" : "Full-Auto")"
-            bulletCount = randomGun.magazineSize  // Initialize bullet count.
-            updateBulletCountLabel("\(bulletCount)")
-        }
+        gunSelectorLabel.text = "\(selectedGun.name), \(selectedGun.isSemiAuto ? "Semi-Auto" : "Full-Auto")"
+        bulletCount = selectedGun.magazineSize  // Initialize bullet count.
+        updateBulletCountLabel("\(bulletCount)")
         
         // Replace tap gesture with long press to handle firing modes.
         let fireGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleFireGesture(_:)))
@@ -133,13 +133,15 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
     
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
         if let touchedView = touch.view {
-            if touchedView.isDescendant(of: gunSelectorContainerView) ||
-               touchedView.isDescendant(of: nightVisionSwitch) {
+            // Exclude any views you don't want to fire the gun
+            if touchedView.isDescendant(of: nightVisionSwitch) ||
+               touchedView.isDescendant(of: bulletCountContainerView) { // <-- Added
                 return false
             }
         }
         return true
     }
+
     
     // MARK: - Setup Methods
     
@@ -230,6 +232,25 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
             bulletCountLabel.leadingAnchor.constraint(equalTo: bulletCountContainerView.leadingAnchor, constant: 5),
             bulletCountLabel.trailingAnchor.constraint(equalTo: bulletCountContainerView.trailingAnchor, constant: -5)
         ])
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleBulletCountTap))
+        bulletCountContainerView.addGestureRecognizer(tapGesture)
+        bulletCountContainerView.isUserInteractionEnabled = true
+    }
+    
+    @objc private func handleBulletCountTap() {
+        if !isReloading {
+            isReloading = true
+            updateBulletCountLabel("Reloading...")
+            if let reloadTime = selectedGun?.reloadTime {
+                DispatchQueue.main.asyncAfter(deadline: .now() + reloadTime) { [weak self] in
+                    guard let self = self else { return }
+                    self.bulletCount = self.initialBulletCount
+                    self.isReloading = false
+                    self.updateBulletCountLabel("\(self.bulletCount)")
+                }
+            }
+        }
     }
     
     func setupGunSelectorLabel() {
