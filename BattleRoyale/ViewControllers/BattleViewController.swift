@@ -38,10 +38,8 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
     
     var latestObservations: [VNDetectedObjectObservation] = []
     
-    // Timer for full auto firing.
     var autoFireTimer: Timer?
     
-    // Property for nightVisionSwitch.
     var nightVisionSwitch: UISwitch!
     
     var hitmarkerPlayer: AVAudioPlayer?
@@ -50,8 +48,7 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
     
     var udp: UDPCommunication?
     
-    // Player's health and health bar.
-    var hp: Double = 1000  // Player starts with 1000 hp.
+    var hp: Double = 1000
     var healthBarContainer: UIView!
     var healthBarView: UIView!
     var healthBarWidthConstraint: NSLayoutConstraint!
