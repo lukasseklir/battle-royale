@@ -8,6 +8,7 @@
 import UIKit
 import AVFoundation
 import Vision
+import Network
 
 class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
     
@@ -39,13 +40,41 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
     // Timer for full auto firing.
     var autoFireTimer: Timer?
     
-    // Property for nightVisionSwitch (changed from local variable).
+    // Property for nightVisionSwitch.
     var nightVisionSwitch: UISwitch!
     
     var hitmarkerPlayer: AVAudioPlayer?
+    var missPlayer: AVAudioPlayer?         // Added for miss sound
+    var damagePlayer: AVAudioPlayer?       // Added for damage sound
+    
+    var udp: UDPCommunication?
+    
+    // Player's health and health bar.
+    var hp: Double = 1000  // Player starts with 1000 hp.
+    var healthBarContainer: UIView!
+    var healthBarView: UIView!
+    var healthBarWidthConstraint: NSLayoutConstraint!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        triggerLocalNetworkPrompt()
+        udp = UDPCommunication(receivePort: 9999)
+        
+        // Set up callback for hit messages.
+        udp?.onHitReceived = { [weak self] damage in
+            guard let self = self else { return }
+            self.hp -= damage
+            DispatchQueue.main.async {
+                self.updateHealthBar()
+            }
+        }
+        
+        if let ip = udp?.localIPAddress {
+            print("📱 My IP address: \(ip)")
+        } else {
+            print("⚠️ No IP address found")
+        }
         
         // Set up audio session for playback.
         do {
@@ -64,6 +93,26 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
             }
         }
         
+        // Load miss sound
+        if let missUrl = Bundle.main.url(forResource: "miss", withExtension: "mp3") {
+            do {
+                missPlayer = try AVAudioPlayer(contentsOf: missUrl)
+                missPlayer?.prepareToPlay()
+            } catch {
+                print("Error loading miss sound: \(error)")
+            }
+        }
+
+        // Load damage sound
+        if let damageUrl = Bundle.main.url(forResource: "damage", withExtension: "mp3") {
+            do {
+                damagePlayer = try AVAudioPlayer(contentsOf: damageUrl)
+                damagePlayer?.prepareToPlay()
+            } catch {
+                print("Error loading damage sound: \(error)")
+            }
+        }
+        
         setupCamera()
         
         nightVisionImageView = UIImageView(frame: view.bounds)
@@ -75,26 +124,25 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
         setupBulletCountLabel()
         setupNightVisionToggle()
         setupGunSelectorLabel()
+        setupHealthBar()  // Setup the health bar.
         
         // Set a random gun on first launch.
         if let randomGun = GunService.shared.guns.randomElement() {
             selectedGun = randomGun
             gunSelectorLabel.text = "\(randomGun.name), \(randomGun.isSemiAuto ? "Semi-Auto" : "Full-Auto")"
-            bulletCount = randomGun.magazineSize  // Initialize bullet count based on gun's magazine size.
+            bulletCount = randomGun.magazineSize  // Initialize bullet count.
             updateBulletCountLabel("\(bulletCount)")
         }
         
-        // Replace tap gesture with a long press gesture to handle semi and full auto fire.
+        // Replace tap gesture with long press to handle firing modes.
         let fireGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleFireGesture(_:)))
         fireGesture.minimumPressDuration = 0 // Fires immediately.
-        // Set delegate so touches on controls are ignored.
-        fireGesture.delegate = self
+        fireGesture.delegate = self  // Prevent touches on controls.
         view.addGestureRecognizer(fireGesture)
     }
     
     // MARK: - UIGestureRecognizerDelegate
     
-    // Prevent fireGesture from receiving touches on gunSelectorContainerView and nightVisionSwitch.
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
         if let touchedView = touch.view {
             if touchedView.isDescendant(of: gunSelectorContainerView) ||
@@ -221,19 +269,7 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
         gunSelectorContainerView.isUserInteractionEnabled = true
     }
     
-    @objc func gunSelectorTapped() {
-        print("gun selector tapped")
-        let gunSelectorVC = GunSelectorViewController()
-        gunSelectorVC.delegate = self
-        present(gunSelectorVC, animated: true, completion: nil)
-    }
-    
-    func updateBulletCountLabel(_ text: String) {
-        bulletCountLabel.text = "Ammo: \(text)"
-    }
-    
     func setupNightVisionToggle() {
-        // Use the property nightVisionSwitch to allow gesture filtering.
         nightVisionSwitch = UISwitch()
         nightVisionSwitch.translatesAutoresizingMaskIntoConstraints = false
         nightVisionSwitch.addTarget(self, action: #selector(nightVisionSwitchChanged(_:)), for: .valueChanged)
@@ -253,21 +289,99 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
         ])
     }
     
+    func setupHealthBar() {
+        // Create container for the health bar.
+        healthBarContainer = UIView()
+        healthBarContainer.translatesAutoresizingMaskIntoConstraints = false
+        healthBarContainer.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        healthBarContainer.layer.cornerRadius = 5
+        view.addSubview(healthBarContainer)
+        
+        // Create the red health bar view.
+        healthBarView = UIView()
+        healthBarView.translatesAutoresizingMaskIntoConstraints = false
+        healthBarView.backgroundColor = .red
+        healthBarView.layer.cornerRadius = 5
+        healthBarContainer.addSubview(healthBarView)
+        
+        // Set fixed width for health bar container.
+        let maxWidth: CGFloat = 300
+        
+        NSLayoutConstraint.activate([
+            // Position container at top center.
+            healthBarContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            healthBarContainer.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            healthBarContainer.widthAnchor.constraint(equalToConstant: maxWidth),
+            healthBarContainer.heightAnchor.constraint(equalToConstant: 20)
+        ])
+        
+        // Health bar view constraints: align to container's left, top, bottom with a width we will update.
+        healthBarWidthConstraint = healthBarView.widthAnchor.constraint(equalToConstant: maxWidth)
+        NSLayoutConstraint.activate([
+            healthBarView.leadingAnchor.constraint(equalTo: healthBarContainer.leadingAnchor),
+            healthBarView.topAnchor.constraint(equalTo: healthBarContainer.topAnchor),
+            healthBarView.bottomAnchor.constraint(equalTo: healthBarContainer.bottomAnchor),
+            healthBarWidthConstraint
+        ])
+    }
+    
+    func updateBulletCountLabel(_ text: String) {
+        bulletCountLabel.text = "Ammo: \(text)"
+    }
+    
+    func updateHealthBar() {
+        let maxWidth: CGFloat = 300
+        let clampedHP = max(hp, 0)
+        let newWidth = maxWidth * CGFloat(clampedHP) / 1000.0
+        healthBarWidthConstraint.constant = newWidth
+        view.layoutIfNeeded()
+        
+        damagePlayer?.play()
+        flashRedEffect()
+        
+        if hp <= 0 {
+            showDeathScreen()
+        }
+    }
+
+    func flashRedEffect() {
+        let redOverlay = UIView(frame: view.bounds)
+        redOverlay.backgroundColor = UIColor.red
+        redOverlay.alpha = 0.0
+        view.addSubview(redOverlay)
+        
+        // Animate red flash.
+        UIView.animate(withDuration: 0.1, animations: {
+            redOverlay.alpha = 0.5
+        }) { _ in
+            UIView.animate(withDuration: 0.1, animations: {
+                redOverlay.alpha = 0.0
+            }) { _ in
+                redOverlay.removeFromSuperview()
+            }
+        }
+    }
+    
     @objc func nightVisionSwitchChanged(_ sender: UISwitch) {
         nightVisionEnabled = sender.isOn
         nightVisionImageView.isHidden = !nightVisionEnabled
     }
     
-    // Gesture handler to differentiate between semi and full auto firing modes.
+    @objc func gunSelectorTapped() {
+        print("gun selector tapped")
+        let gunSelectorVC = GunSelectorViewController()
+        gunSelectorVC.delegate = self
+        present(gunSelectorVC, animated: true, completion: nil)
+    }
+    
+    // Gesture handler for semi and full auto firing.
     @objc func handleFireGesture(_ gesture: UILongPressGestureRecognizer) {
         guard let gun = selectedGun else { return }
         if gun.isSemiAuto {
-            // Semi-auto: fire once when gesture begins.
             if gesture.state == .began {
                 shoot()
             }
         } else {
-            // Full-auto: start firing continuously while pressed.
             if gesture.state == .began {
                 autoFireTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
                     self?.shoot()
@@ -295,6 +409,9 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
                 hitHaptic.notificationOccurred(.success)
                 animateHitFeedback()
                 hitmarkerPlayer?.play()
+                sendHit()
+            } else {
+                missPlayer?.play()
             }
             
             if bulletCount == 0 {
@@ -312,6 +429,11 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
         }
     }
     
+    func sendHit() {
+        guard let selectedGun = selectedGun else { return }
+        self.udp?.sendWhenReady(message: "hit: \(selectedGun.damagePerShot)")
+    }
+    
     func animateHitFeedback() {
         for subview in crosshairView.subviews {
             let originalColor = subview.backgroundColor
@@ -323,6 +445,48 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
                 }
             }
         }
+    }
+    
+    func triggerLocalNetworkPrompt() {
+        let browser = NWBrowser(for: .bonjour(type: "_localservice._udp", domain: nil), using: .udp)
+        browser.stateUpdateHandler = { state in
+            print("NWBrowser state: \(state)")
+        }
+        browser.start(queue: .main)
+    }
+    
+    func showDeathScreen() {
+        // Create a full-screen red overlay.
+        let deathView = UIView()
+        deathView.translatesAutoresizingMaskIntoConstraints = false
+        deathView.backgroundColor = UIColor.red
+        view.addSubview(deathView)
+        
+        NSLayoutConstraint.activate([
+            deathView.topAnchor.constraint(equalTo: view.topAnchor),
+            deathView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            deathView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            deathView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+        
+        // Create the End Game button.
+        let endGameButton = UIButton(type: .system)
+        endGameButton.translatesAutoresizingMaskIntoConstraints = false
+        endGameButton.setTitle("End Game", for: .normal)
+        endGameButton.setTitleColor(.white, for: .normal)
+        endGameButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 24)
+        deathView.addSubview(endGameButton)
+        
+        NSLayoutConstraint.activate([
+            endGameButton.centerXAnchor.constraint(equalTo: deathView.centerXAnchor),
+            endGameButton.centerYAnchor.constraint(equalTo: deathView.centerYAnchor)
+        ])
+        
+        endGameButton.addTarget(self, action: #selector(endGameButtonTapped), for: .touchUpInside)
+    }
+    
+    @objc func endGameButtonTapped() {
+        dismiss(animated: true, completion: nil)
     }
 }
 
@@ -385,27 +549,22 @@ extension BattleViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
     }
     
     func createBulletTracer() {
-        // Define start and end points
         let startPoint = CGPoint(x: view.bounds.width - 30, y: view.bounds.height - 30)
         let endPoint = crosshairView.center
 
-        // Create a path from start to end
         let tracerPath = UIBezierPath()
         tracerPath.move(to: startPoint)
         tracerPath.addLine(to: endPoint)
         
-        // Configure a CAShapeLayer to display the path
         let tracerLayer = CAShapeLayer()
         tracerLayer.path = tracerPath.cgPath
         tracerLayer.strokeColor = UIColor.yellow.cgColor
         tracerLayer.lineWidth = 2.0
         tracerLayer.lineCap = .round
-        tracerLayer.strokeEnd = 0  // Start with no visible stroke
+        tracerLayer.strokeEnd = 0
         
-        // Add the tracer layer to the view's layer hierarchy
         view.layer.addSublayer(tracerLayer)
         
-        // Animate strokeEnd from 0 to 1 to simulate the tracer moving along the line
         let animationDuration: CFTimeInterval = 0.15
         let strokeAnimation = CABasicAnimation(keyPath: "strokeEnd")
         strokeAnimation.fromValue = 0
@@ -414,7 +573,6 @@ extension BattleViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
         strokeAnimation.timingFunction = CAMediaTimingFunction(name: .easeOut)
         tracerLayer.add(strokeAnimation, forKey: "strokeEndAnimation")
         
-        // Remove the layer after the animation completes
         DispatchQueue.main.asyncAfter(deadline: .now() + animationDuration) {
             tracerLayer.removeFromSuperlayer()
         }
@@ -422,7 +580,6 @@ extension BattleViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
 }
 
 extension BattleViewController: GunSelectorDelegate {
-    // When a new gun is selected, start in reloading mode and update the bullet count based on the gun.
     func didSelectGun(_ gun: Gun) {
         selectedGun = gun
         gunSelectorLabel.text = "\(gun.name), \(gun.isSemiAuto ? "Semi-Auto" : "Full-Auto")"

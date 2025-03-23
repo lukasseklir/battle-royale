@@ -12,17 +12,9 @@ class InitialViewController: UIViewController {
     let titleLabel = UILabel.createLabel(fontSize: 40, color: .white, thickness: .heavy, numLines: 0, text: "Let's\nBattle")
     let getStartedButton = StandardButton(title: "Get Started", tintColor: .systemIndigo, backgroundColor: .white)
     
-    var udp: UDPCommunication?
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        //test
-        udp = UDPCommunication(receivePort: 9999)
-        udp?.configurePeer(ip: "192.168.1.15", port: 8888)
-        udp?.send(message: "💥 Bullet fired from device!")
-        
-         
-        
+
         setupUI()
     }
     
@@ -32,10 +24,10 @@ class InitialViewController: UIViewController {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(stackView)
         NSLayoutConstraint.activate([
-            stackView.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 0),
+            stackView.topAnchor.constraint(equalTo: self.view.topAnchor),
             stackView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 32),
             stackView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -32),
-            stackView.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor, constant: 0)
+            stackView.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor)
         ])
         
         let topView = UIView()
@@ -55,7 +47,7 @@ class InitialViewController: UIViewController {
         getStartedTapGestureRecognizer.delaysTouchesBegan = false
         getStartedTapGestureRecognizer.delaysTouchesEnded = true
         getStartedButton.addGestureRecognizer(getStartedTapGestureRecognizer)
-
+        
         stackView.addArrangedSubview(getStartedButton)
     }
     
