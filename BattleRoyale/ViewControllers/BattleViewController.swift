@@ -10,6 +10,7 @@ import AVFoundation
 import Vision
 import Network
 import MultipeerConnectivity
+import SceneKit
 
 class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
     
@@ -104,6 +105,8 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
         
         setupCamera()
         
+        setup3DGun()
+        
         nightVisionImageView = UIImageView(frame: view.bounds)
         nightVisionImageView.contentMode = .scaleAspectFill
         nightVisionImageView.isHidden = true
@@ -141,6 +144,57 @@ class BattleViewController: UIViewController, UIGestureRecognizerDelegate {
 
     
     // MARK: - Setup Methods
+    
+    func setup3DGun() {
+        // Create the SceneKit scene and SCNView
+        let scene = SCNScene()
+        let gunSceneView = SCNView(frame: CGRect(x: view.bounds.width - 200, y: view.bounds.height - 200, width: 250, height: 250))
+        gunSceneView.scene = scene
+        gunSceneView.autoenablesDefaultLighting = true
+        gunSceneView.allowsCameraControl = false
+        view.addSubview(gunSceneView)
+        
+        var gunFileName = "Ice_Gun.usdz"
+        var rotationAngle: Float = .pi / 3  // 90 degrees in radians
+        var rotationAxis = SCNVector4(0.5, 1, 0, rotationAngle)  // Rotate around Y-axis
+        if let gun = selectedGun {
+            // Now you can safely access the properties of 'gun'
+            gunFileName = gun.fileName
+            if gun.name == "Frost Blaster" || gun.name == "Bubble Blaster" || gun.name == "Water Blaster" {
+                rotationAngle = 2 * .pi / 3;  // 90 degrees in radians
+                rotationAxis = SCNVector4(0, -1, 0, rotationAngle);  // Rotate around Y-axis
+            } else if gun.name == "Banana Blaster" {
+                rotationAngle = 2 * .pi / 3;  // 90 degrees in radians
+                rotationAxis = SCNVector4(0, 1, 0, rotationAngle);  // Rotate around Y-axis
+            }
+            print("Gun file name: \(gunFileName)")
+        } else {
+            gunFileName = "Ice_Gun.usdz"
+            print("No gun selected")
+        }
+        
+        // Load the model scene
+        if let modelScene = SCNScene(named: gunFileName) {
+            // Add lighting to the scene
+            let lightNode = SCNNode()
+            lightNode.light = SCNLight()
+            lightNode.light?.type = .omni
+            
+            lightNode.position = SCNVector3(x: 0, y: 10, z: 35)
+            modelScene.rootNode.addChildNode(lightNode)
+
+            // Set scene to sceneView
+            gunSceneView.autoenablesDefaultLighting = true
+            gunSceneView.backgroundColor = .clear
+            gunSceneView.scene = modelScene
+            
+            modelScene.rootNode.rotation = rotationAxis
+        } else {
+            print("Failed to load the scene: \(gunFileName)")
+        }
+
+
+    }
     
     func setupCamera() {
         captureSession = AVCaptureSession()

@@ -20,28 +20,17 @@ class GunService {
             magazineSize: 7,
             isSemiAuto: true,
             damagePerShot: 45.0,
-            fileName: "RAY_GUN.usdz"
+            fileName: "Banana_Gun.usdz"
         ),
         
         Gun(
-            name: "Sock Launcher 3000",
-            description: "Rapid-fires rolled-up socks with pinpoint accuracy. Comes pre-loaded with mismatched pairs for extra confusion.",
-            image: UIImage(named: "sockLauncher") ?? UIImage(),
+            name: "Frost Blaster",
+            description: "A chilling weapon that freezes enemies in their tracks. Cold, but effective.",
+            image: UIImage(named: "iceGun") ?? UIImage(),
             reloadTime: 3.0,
-            magazineSize: 30,
-            isSemiAuto: false,
-            damagePerShot: 32.0,
-            fileName: "Ice_Gun.usdz"
-        ),
-        
-        Gun(
-            name: "Glitter Cannon",
-            description: "Close-range weapon with devastating spread of craft supplies. Victims will be finding glitter for YEARS.",
-            image: UIImage(named: "glitterCannon") ?? UIImage(),
-            reloadTime: 4.5,
-            magazineSize: 8,
-            isSemiAuto: false,
-            damagePerShot: 75.0,
+            magazineSize: 6,
+            isSemiAuto: true,
+            damagePerShot: 65.0,
             fileName: "Ice_Gun.usdz"
         ),
         
@@ -53,7 +42,7 @@ class GunService {
             magazineSize: 5,
             isSemiAuto: true,
             damagePerShot: 95.0,
-            fileName: "Ice_Gun.usdz"
+            fileName: "Rubber_Band.usdz"
         ),
         
         Gun(
@@ -64,18 +53,31 @@ class GunService {
             magazineSize: 25,
             isSemiAuto: false,
             damagePerShot: 18.0,
-            fileName: "Ice_Gun.usdz"
+            fileName: "Bubble_Gun.usdz"
         ),
         
         Gun(
-            name: "T-Shirt Cannon",
-            description: "Fires rolled-up promotional t-shirts at unsuspecting targets. Free merch is surprisingly effective in battle.",
-            image: UIImage(named: "tshirtCannon") ?? UIImage(),
-            reloadTime: 3.2,
-            magazineSize: 6,
+            name: "Water Blaster",
+            description: "A high-pressure water gun that soaks enemies in an instant. Perfect for summer battles and unexpected drenchings.",
+            image: UIImage(named: "waterBlaster") ?? UIImage(),
+            reloadTime: 2.5,
+            magazineSize: 10,
+            isSemiAuto: false,
+            damagePerShot: 30.0,
+            fileName: "Water_Gun.usdz"
+        ),
+        
+        Gun(
+            name: "Ray Gun",
+            description: "A futuristic energy weapon that disintegrates targets with concentrated plasma beams.",
+            image: UIImage(named: "rayGun") ?? UIImage(),
+            reloadTime: 2.5,
+            magazineSize: 20,
             isSemiAuto: true,
-            damagePerShot: 60.0,
-            fileName: "Ice_Gun.usdz"
+            damagePerShot: 50.0,
+            fileName: "RAY_GUN.usdz"
         )
+
+
     ]
 }

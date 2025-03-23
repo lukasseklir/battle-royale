@@ -8,6 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		7C0A5AC62D8F711D00A52426 /* UDPCommunication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C0A5AC52D8F711D00A52426 /* UDPCommunication.swift */; };
+		7C1255682D9084A80039EEBA /* Water_Gun.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 7C1255672D9084A80039EEBA /* Water_Gun.usdz */; };
+		7C12556A2D9084AB0039EEBA /* Nerf_Gun.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 7C1255692D9084AB0039EEBA /* Nerf_Gun.usdz */; };
+		7C12556C2D9084AE0039EEBA /* Bubble_Gun.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 7C12556B2D9084AE0039EEBA /* Bubble_Gun.usdz */; };
+		7C12556E2D9084B10039EEBA /* Pepsi_gun.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 7C12556D2D9084B10039EEBA /* Pepsi_gun.usdz */; };
+		7C1255702D9084B30039EEBA /* Pink_Gun.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 7C12556F2D9084B30039EEBA /* Pink_Gun.usdz */; };
+		7C1255722D9084B60039EEBA /* Banana_Gun.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 7C1255712D9084B60039EEBA /* Banana_Gun.usdz */; };
+		7C1255742D9084B80039EEBA /* Rubber_Band.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 7C1255732D9084B80039EEBA /* Rubber_Band.usdz */; };
 		7CF8AA542D8F78040033F7A9 /* Ice_Gun.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 7CF8AA532D8F78040033F7A9 /* Ice_Gun.usdz */; };
 		7CF8AA562D8F98D80033F7A9 /* RAY_GUN.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 7CF8AA552D8F98D80033F7A9 /* RAY_GUN.usdz */; };
 		80417BC02D8F47E50086B127 /* InitialViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80417BBF2D8F47E50086B127 /* InitialViewController.swift */; };
@@ -54,6 +61,13 @@
 
 /* Begin PBXFileReference section */
 		7C0A5AC52D8F711D00A52426 /* UDPCommunication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPCommunication.swift; sourceTree = "<group>"; };
+		7C1255672D9084A80039EEBA /* Water_Gun.usdz */ = {isa = PBXFileReference; lastKnownFileType = file; path = Water_Gun.usdz; sourceTree = "<group>"; };
+		7C1255692D9084AB0039EEBA /* Nerf_Gun.usdz */ = {isa = PBXFileReference; lastKnownFileType = file; path = Nerf_Gun.usdz; sourceTree = "<group>"; };
+		7C12556B2D9084AE0039EEBA /* Bubble_Gun.usdz */ = {isa = PBXFileReference; lastKnownFileType = file; path = Bubble_Gun.usdz; sourceTree = "<group>"; };
+		7C12556D2D9084B10039EEBA /* Pepsi_gun.usdz */ = {isa = PBXFileReference; lastKnownFileType = file; path = Pepsi_gun.usdz; sourceTree = "<group>"; };
+		7C12556F2D9084B30039EEBA /* Pink_Gun.usdz */ = {isa = PBXFileReference; lastKnownFileType = file; path = Pink_Gun.usdz; sourceTree = "<group>"; };
+		7C1255712D9084B60039EEBA /* Banana_Gun.usdz */ = {isa = PBXFileReference; lastKnownFileType = file; path = Banana_Gun.usdz; sourceTree = "<group>"; };
+		7C1255732D9084B80039EEBA /* Rubber_Band.usdz */ = {isa = PBXFileReference; lastKnownFileType = file; path = Rubber_Band.usdz; sourceTree = "<group>"; };
 		7CF8AA532D8F78040033F7A9 /* Ice_Gun.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = Ice_Gun.usdz; sourceTree = "<group>"; };
 		7CF8AA552D8F98D80033F7A9 /* RAY_GUN.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = RAY_GUN.usdz; sourceTree = "<group>"; };
 		80417BBF2D8F47E50086B127 /* InitialViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialViewController.swift; sourceTree = "<group>"; };
@@ -136,6 +150,13 @@
 				807650382D8F45D20067437E /* LaunchScreen.storyboard */,
 				7CF8AA532D8F78040033F7A9 /* Ice_Gun.usdz */,
 				7CF8AA552D8F98D80033F7A9 /* RAY_GUN.usdz */,
+				7C1255672D9084A80039EEBA /* Water_Gun.usdz */,
+				7C1255692D9084AB0039EEBA /* Nerf_Gun.usdz */,
+				7C12556B2D9084AE0039EEBA /* Bubble_Gun.usdz */,
+				7C12556D2D9084B10039EEBA /* Pepsi_gun.usdz */,
+				7C12556F2D9084B30039EEBA /* Pink_Gun.usdz */,
+				7C1255712D9084B60039EEBA /* Banana_Gun.usdz */,
+				7C1255732D9084B80039EEBA /* Rubber_Band.usdz */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -362,12 +383,19 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7C1255702D9084B30039EEBA /* Pink_Gun.usdz in Resources */,
+				7C12556A2D9084AB0039EEBA /* Nerf_Gun.usdz in Resources */,
 				807650372D8F45D20067437E /* Assets.xcassets in Resources */,
+				7C12556E2D9084B10039EEBA /* Pepsi_gun.usdz in Resources */,
+				7C1255742D9084B80039EEBA /* Rubber_Band.usdz in Resources */,
+				7C1255722D9084B60039EEBA /* Banana_Gun.usdz in Resources */,
 				80417BF02D8F996E0086B127 /* miss.mp3 in Resources */,
 				8076503A2D8F45D20067437E /* Base in Resources */,
 				7CF8AA562D8F98D80033F7A9 /* RAY_GUN.usdz in Resources */,
 				7CF8AA542D8F78040033F7A9 /* Ice_Gun.usdz in Resources */,
 				80417BE22D8F720B0086B127 /* hitmarker.mp3 in Resources */,
+				7C1255682D9084A80039EEBA /* Water_Gun.usdz in Resources */,
+				7C12556C2D9084AE0039EEBA /* Bubble_Gun.usdz in Resources */,
 				80417BEE2D8F99580086B127 /* damage.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
